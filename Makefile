@@ -9,8 +9,8 @@ testNetworks: testNetworks.o networks.o
 testParser: testParser.o httpParser.o
 	g++ -o testParser $(CCFLAGS) testParser.o httpParser.o
 
-proxy: proxy.o networks.o
-	g++ -o proxy $(CCFLAGS) proxy.o networks.o
+proxy: proxy.o networks.o request.o httpParser.o
+	g++ -o proxy $(CCFLAGS) proxy.o networks.o request.o httpParser.o
 
 %.o: %.cpp networks.hpp httpParser.hpp response.hpp request.hpp
 	g++ -c $(CCFLAGS) $<
