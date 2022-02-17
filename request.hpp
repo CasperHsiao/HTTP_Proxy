@@ -1,8 +1,15 @@
 #ifndef __REQUEST_H__
 #define __REQUEST_H__
 
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
+
+#include <iostream>
 #include <string>
 #include <unordered_map>
+
 class Request {
  public:
   std::string request;
@@ -15,4 +22,6 @@ class Request {
   std::unordered_map<std::string, std::string> header;
   std::string body;
 };
+
+void handle_request(int listener_fd, int connection_fd);
 #endif
