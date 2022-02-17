@@ -18,6 +18,7 @@ class Request {
   std::string protocol_version;
   std::string hostname;
   std::string port;
+  int content_length;
   std::string start_line;
   std::unordered_map<std::string, std::string> header;
   std::string body;

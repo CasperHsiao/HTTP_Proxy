@@ -10,6 +10,7 @@ class Response {
   std::string protocol_version;
   std::string status_code;
   std::string status_text;
+  int content_length;
   std::string start_line;
   std::unordered_map<std::string, std::string> header;
   std::string body;

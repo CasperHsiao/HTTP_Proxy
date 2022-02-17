@@ -13,10 +13,12 @@
 #include <exception>
 #include <iostream>
 
+#include "httpParser.hpp"
+
 #define BACKLOG 10
 
 void * get_in_addr(struct sockaddr * sa);
 int get_listener_socket(const char * port);
-int listen_for_connections(int listener_fd);
-
+void listen_for_connections(int listener_fd);
+void handle_connect_request(int client_fd, int server_fd, Request & request);
 #endif
