@@ -70,14 +70,14 @@ void listen_for_requests(int listener_fd) {  // ONLY accept once for now
   socklen_t addrlen = sizeof(client_addr);
   char clientIP[INET6_ADDRSTRLEN];
 
-  struct pollfd * pfds = malloc(sizeof(*pfds));
+  struct pollfd * pfds = new struct pollfd();
   pfds[0].fd = listener_fd;
   pfds[0].events = POLLIN;
   while (true) {
     int poll_count = poll(pfds, 1, -1);
     if (poll_count == -1) {
       std::cerr << "Error: poll_count error" << std::endl;
-      throw std::exception;
+      throw std::exception();
     }
 
     new_fd = accept(pfds[0].fd, (struct sockaddr *)&client_addr, &addrlen);
@@ -86,9 +86,11 @@ void listen_for_requests(int listener_fd) {  // ONLY accept once for now
               clientIP,
               INET6_ADDRSTRLEN);
     if (new_fd == -1) {
-      cerr << "Error: failed to accpet client connection from " << clientIP << endl;
-      cout << "Server: keep listening" << endl;
+      std::cerr << "Error: failed to accpet client connection from " << clientIP
+                << std::endl;
+      std::cout << "Server: keep listening" << std::endl;
     }
-    return new_fd;
+    //return new_fd;
   }
+  delete pfds;
 }

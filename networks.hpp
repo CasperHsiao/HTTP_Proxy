@@ -18,5 +18,6 @@
 
 void * get_in_addr(struct sockaddr * sa);
 int get_listener_socket(const char * port);
+void listen_for_requests(int listener_fd);
 
 #endif
