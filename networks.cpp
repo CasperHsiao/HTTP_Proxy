@@ -64,7 +64,7 @@ void * get_in_addr(struct sockaddr * sa) {
   return &(((struct sockaddr_in6 *)sa)->sin6_addr);
 }
 
-void listen_for_requests(int listener_fd) {  // ONLY accept once for now
+void listen_for_connections(int listener_fd) {  // ONLY accept once for now
   int new_fd;
   struct sockaddr_storage client_addr;  // connector's address information
   socklen_t addrlen = sizeof(client_addr);

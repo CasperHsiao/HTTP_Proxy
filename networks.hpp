@@ -14,10 +14,9 @@
 #include <iostream>
 
 #define BACKLOG 10
-//#define LISTENING_PORT "8000"
 
 void * get_in_addr(struct sockaddr * sa);
 int get_listener_socket(const char * port);
-void listen_for_requests(int listener_fd);
+void listen_for_connections(int listener_fd);
 
 #endif

@@ -15,7 +15,7 @@ int main(int argc, char * argv[]) {
   }
 
   try {
-    listen_for_requests(listener_fd);
+    listen_for_connections(listener_fd);
   }
   catch (std::exception & e) {
     std::cout << "Error: client_fd" << std::endl;
