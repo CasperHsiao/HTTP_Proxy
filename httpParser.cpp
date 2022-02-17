@@ -53,7 +53,8 @@ std::unordered_map<std::string, std::string> HttpParser::parseHeader() {
     std::string val = message.substr(parser_index, index - parser_index);
     header[key] = val;
     parser_index = index + CRLF.size();
-    if (message.find(CRLF, parser_index) == parser_index) {  // reached empty line
+    if (message.find(CRLF, parser_index) ==
+        parser_index) {  // reached empty line - \r\n\r\n
       parser_index = parser_index + CRLF.size();
       break;
     }
@@ -76,6 +77,17 @@ void HttpParser::parseRequestHostnameAndPort(Request & req) {
     req.port = "80";
   }
 }
+
+int HttpParser::parseContentLength(std::unordered_map<std::string, std::string> header) {
+  std::unordered_map<std::string, std::string>::const_iterator it =
+      header.find("CONTEN-LENGTH");
+  if (it == header.end()) {
+    return -1;
+  }
+  std::string length = it->second;
+  return stoi(length);
+}
+
 std::string HttpParser::parseBody() {
   return message.substr(parser_index, message.size() - parser_index);
 }
@@ -85,6 +97,7 @@ Response HttpParser::parseResponse() {
   response.response = message;
   parseStatusLine(response);
   response.header = parseHeader();
+  response.content_length = parseContentLength(response.header);
   response.body = parseBody();
   parser_index = 0;
   return response;
@@ -96,6 +109,7 @@ Request HttpParser::parseRequest() {
   parseStartLine(request);
   request.header = parseHeader();
   parseRequestHostnameAndPort(request);
+  request.content_length = parseContentLength(request.header);
   request.body = parseBody();
   parser_index = 0;
   return request;

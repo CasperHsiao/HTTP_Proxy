@@ -32,6 +32,6 @@ int main(int argc, char ** argv) {
   cout << req.protocol_version << "()" << endl;
   cout << req.hostname << "()" << endl;
   cout << req.port << "()" << endl;
-
+  cout << req.content_length << "()" << endl;
   return EXIT_SUCCESS;
 }

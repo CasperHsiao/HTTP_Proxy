@@ -21,5 +21,6 @@ class HttpParser {
   void parseStatusLine(Response & resp);
   std::unordered_map<std::string, std::string> parseHeader();
   void parseRequestHostnameAndPort(Request & req);
+  int parseContentLength(std::unordered_map<std::string, std::string> header);
   std::string parseBody();
 };

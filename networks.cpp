@@ -95,6 +95,23 @@ void listen_for_connections(int listener_fd) {  // ONLY accept once for now
   delete pfds;
 }
 
+size_t send_buffer(int target_fd, const char * buf, size_t len, int flags) {
+  size_t bytes_sent;
+  size_t total_bytes_sent = 0;
+  size_t bytes_left = len;
+  const char * buf_left = buf;
+  while (bytes_left > 0) {
+    if ((bytes_sent = send(target_fd, buf_left, bytes_left, flags)) == -1) {
+      std::cerr << "Error: failed to send to connection tunnel" << std::endl;
+      throw std::exception();
+    }
+    total_bytes_sent += bytes_sent;
+    bytes_left -= bytes_sent;
+    buf_left += bytes_sent;
+  }
+  return total_bytes_sent;
+}
+
 void handle_connect_request(int client_fd, int server_fd, Request & request) {
   char msg[] = "HTTP/1.1 200 OK\r\n\r\n";
   int nbytes;
@@ -135,10 +152,7 @@ void handle_connect_request(int client_fd, int server_fd, Request & request) {
             std::cerr << "Error: poll_count_send" << std::endl;
             throw std::exception();
           }
-          if ((nbytes = send(pfds_send[i].fd, buf, nbytes, 0)) == -1) {
-            std::cerr << "Error: failed to send to connection tunnel" << std::endl;
-            throw std::exception();
-          }
+          send_buffer(pfds_send[i].fd, buf, nbytes, 0);
           break;
         }
       }
