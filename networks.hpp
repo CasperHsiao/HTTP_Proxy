@@ -19,6 +19,8 @@
 
 void * get_in_addr(struct sockaddr * sa);
 int get_listener_socket(const char * port);
-void listen_for_connections(int listener_fd);
+int listen_for_connections(int listener_fd);
+int get_connected_socket(const char * hostname, const char * port);
+size_t send_buffer(int target_fd, const char * buf, size_t len, int flags);
 void handle_connect_request(int client_fd, int server_fd, Request & request);
 #endif

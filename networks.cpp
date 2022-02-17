@@ -95,6 +95,53 @@ int listen_for_connections(int listener_fd) {  // ONLY accept once for now
   delete pfds;
 }
 
+int get_connected_socket(const char * hostname, const char * port) {
+  int server_fd;
+  struct addrinfo server_info, *server_info_list, *p;
+  char serverIP[INET6_ADDRSTRLEN];
+  int rv;
+
+  memset(&server_info, 0, sizeof(server_info));
+  server_info.ai_family = AF_UNSPEC;
+  server_info.ai_socktype = SOCK_STREAM;
+  if ((rv = getaddrinfo(hostname, port, &server_info, &server_info_list)) != 0) {
+    std::cerr << "Error: cannot get address info for server" << std::endl;
+    std::cerr << "  (" << hostname << "," << port << ")" << std::endl;
+    return -1;
+  }
+
+  // loop through all the results and connect to the first we can
+  for (p = server_info_list; p != NULL; p = p->ai_next) {
+    if ((server_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
+      //perror("client: socket");
+      std::cerr << "Error: cannot create socket" << std::endl;
+      std::cerr << "  (" << hostname << "," << port << ")" << std::endl;
+      continue;
+    }
+
+    if (connect(server_fd, p->ai_addr, p->ai_addrlen) == -1) {
+      close(server_fd);
+      //perror("client: connect");
+      std::cerr << "Error: cannot connect to server" << std::endl;
+      std::cerr << "  (" << hostname << "," << port << ")" << std::endl;
+      continue;
+    }
+    break;
+  }
+
+  if (p == NULL) {
+    std::cerr << "Error: failed to connect to ringmaster" << std::endl;
+    return -1;
+  }
+
+  inet_ntop(p->ai_family,
+            get_in_addr((struct sockaddr *)p->ai_addr),
+            serverIP,
+            sizeof(serverIP));
+  freeaddrinfo(server_info_list);  // all done with this structure
+  return server_fd;
+}
+
 size_t send_buffer(int target_fd, const char * buf, size_t len, int flags) {
   size_t bytes_sent;
   size_t total_bytes_sent = 0;
