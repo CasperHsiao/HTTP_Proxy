@@ -63,7 +63,7 @@ int get_listener_socket(const char * port) {
 
   return sock_fd;
 }
-void handle_request(int connection_fd) {
+void handle_request(int connection_fd, Cache & LRU_cache) {
   // Receive header from client
   std::string http_request;
   int nbytes = recv_http_message_header(connection_fd, http_request, 0);
@@ -114,7 +114,7 @@ void handle_request(int connection_fd) {
   close(server_fd);
 }
 
-void listen_for_connections(int listener_fd) {  // ONLY accept once for now
+void listen_for_connections(int listener_fd, Cache & LRU_cache) {  // ONLY accept once for now
   int new_fd;
   struct sockaddr_storage client_addr;  // connector's address information
   socklen_t addrlen = sizeof(client_addr);
@@ -140,7 +140,7 @@ void listen_for_connections(int listener_fd) {  // ONLY accept once for now
                 << std::endl;
       std::cout << "Server: keep listening" << std::endl;
     }
-    std::thread(handle_request, new_fd).detach();
+    std::thread(handle_request, new_fd, std::ref(LRU_cache)).detach();
   }
   delete pfds;
 }
