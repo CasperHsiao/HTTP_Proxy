@@ -1,6 +1,8 @@
 #ifndef __REQUEST_H__
 #define __REQUEST_H__
 
+#include "cache.hpp"
+
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <sys/socket.h>
@@ -24,5 +26,10 @@ class Request {
   std::string body;
 };
 
+<<<<<<< HEAD
 void handle_request(int connection_fd);
+=======
+void handle_request(int connection_fd, Cache & LRU_cache);
+void handle_get_request(int client_fd, int server_fd, Request & request, Cache & LRU_cache);
+>>>>>>> Finish GET system structure
 #endif

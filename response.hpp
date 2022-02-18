@@ -15,4 +15,6 @@ class Response {
   std::unordered_map<std::string, std::string> header;
   std::string body;
 };
+
+void handle_get_response(int client_fd, int server_fd, Request & request, Cache & LRU_cache);
 #endif
