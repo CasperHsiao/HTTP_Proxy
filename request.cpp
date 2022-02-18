@@ -5,7 +5,7 @@
 void handle_request(int listener_fd, int connection_fd) {
   // Receive header from client
   std::string right_id_host;
-  int status = recv_http_message_header(connection_fd, right_id_host);
+  int status = recv_http_message_header(connection_fd, right_id_host, 0);
 
   if (status < 0) {
     std::cerr << "Error: cannot connect to client's socket" << std::endl;

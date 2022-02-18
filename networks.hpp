@@ -23,6 +23,6 @@ int get_listener_socket(const char * port);
 int listen_for_connections(int listener_fd);
 int get_connected_socket(const char * hostname, const char * port);
 ssize_t send_buffer(int target_fd, const char * buf, size_t len, int flags);
-ssize_t recv_http_message_header(int target_fd, std::string & message);
+ssize_t recv_http_message_header(int target_fd, std::string & message, int flags);
 void handle_connect_request(int client_fd, int server_fd, Request & request);
 #endif

@@ -142,34 +142,79 @@ int get_connected_socket(const char * hostname, const char * port) {
   return server_fd;
 }
 
-ssize_t recv_http_message_header(int target_fd, std::string & message) {
-  std::string empty_line("\r\n\r\n");
-  const char * message_including_header;
+ssize_t recv_http_message_with_delimiter(int target_fd,
+                                         std::string & message,
+                                         std::string & delimiter,
+                                         int flags) {
   std::vector<char> buf;
   buf.resize(BUFFER_SIZE, '\0');
   size_t bytes_recv;
   size_t total_bytes_recv = 0;
   while (true) {
-    std::cout << "looping" << std::endl;
     size_t remaining_size = buf.size() - total_bytes_recv;
     if (remaining_size < BUFFER_SIZE) {
       buf.resize(buf.size() * 2, '\0');
       remaining_size = buf.size() - total_bytes_recv;
     }
-    if ((bytes_recv =
-             recv(target_fd, &buf.data()[total_bytes_recv], remaining_size, 0)) <= 0) {
-      if (bytes_recv == 0) {
-        return 0;
-      }
-      return -1;
+    if ((bytes_recv = recv(
+             target_fd, &buf.data()[total_bytes_recv], remaining_size, flags)) <= 0) {
+      return bytes_recv;
     }
     total_bytes_recv += bytes_recv;
     std::string buf_string(buf.begin(), buf.begin() + total_bytes_recv);
-    if (buf_string.find(empty_line) != std::string::npos) {  // found header
+    if (buf_string.find(delimiter) != std::string::npos) {  // found header
       message = buf_string;
       return total_bytes_recv;
     }
   }
+}
+
+ssize_t recv_http_message_body(int target_fd,
+                               std::string & body,
+                               int flags,
+                               int content_length) {
+  if (content_length == -1) {
+    std::string delimiter("0\r\n");
+    if (body.find(delimiter) == std::string::npos) {
+      return 1;
+    }
+    std::string rest_of_body;
+    int nbytes;
+    if ((nbytes = recv_http_message_with_delimiter(
+             target_fd, rest_of_body, delimiter, flags)) <= 0) {
+      std::cerr << "Error: failed to receive request body" << std::endl;
+      return nbytes;
+    }
+    body += rest_of_body;
+    return nbytes;
+  }
+  int bytes_recv;
+  int total_bytes_recv = body.size();
+  int bytes_left = content_length - total_bytes_recv;
+  char * buf = new char[bytes_left];
+  char * buf_left = buf;
+  while (bytes_left > 0) {
+    if ((bytes_recv = recv(target_fd, buf_left, bytes_left, flags)) <= 0) {
+      std::cerr << "Error: failed to receive request body" << std::endl;
+      return bytes_recv;
+    }
+    total_bytes_recv += bytes_recv;
+    bytes_left -= bytes_recv;
+    buf_left += bytes_recv;
+  }
+  body += buf;
+  delete[] buf;
+  return total_bytes_recv;
+}
+
+ssize_t recv_http_message_header(int target_fd, std::string & message, int flags) {
+  std::string empty_line("\r\n\r\n");
+  int nbytes;
+  if ((nbytes = recv_http_message_with_delimiter(
+           target_fd, message, empty_line, flags)) <= 0) {
+    std::cerr << "Error: failed to receive request header" << std::endl;
+  }
+  return nbytes;
 }
 
 ssize_t send_buffer(int target_fd, const char * buf, size_t len, int flags) {
@@ -179,7 +224,7 @@ ssize_t send_buffer(int target_fd, const char * buf, size_t len, int flags) {
   const char * buf_left = buf;
   while (bytes_left > 0) {
     if ((bytes_sent = send(target_fd, buf_left, bytes_left, flags)) == -1) {
-      std::cerr << "Error: failed to send to connection tunnel" << std::endl;
+      std::cerr << "Error: failed to send entire buffer" << std::endl;
       return -1;
     }
     total_bytes_sent += bytes_sent;
