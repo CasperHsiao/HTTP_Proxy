@@ -37,3 +37,5 @@ void handle_request(int connection_fd);
 void handle_connect_request(int client_fd, int server_fd, Request & request);
 void handle_get_request(int client_fd, int server_fd, Request & request, Cache & LRU_cache);
 #endif
+LRU_cache);
+#endif
