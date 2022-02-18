@@ -182,7 +182,8 @@ void handle_connect_request(int client_fd, int server_fd, Request & request) {
     int poll_count_recv = poll(pfds_recv, 2, -1);
     if (poll_count_recv == -1) {
       std::cerr << "Error: poll_count_recv" << std::endl;
-      throw std::exception();
+      //throw std::exception();
+      return;
     }
 
     for (int i = 0; i < 2; i++) {
@@ -191,13 +192,16 @@ void handle_connect_request(int client_fd, int server_fd, Request & request) {
         char buf[65536];
         if ((nbytes = recv(pfds_recv[i].fd, buf, sizeof(buf), 0)) <= 0) {
           std::cerr << "Error: failed to receive from connection tunnel" << std::endl;
-          throw std::exception();
+          //throw std::exception();
+          return;
         }
+        std::cout << buf << std::endl;
         while (true) {
           int poll_count_send = poll(&pfds_send[i], 1, -1);
           if (poll_count_send == -1) {
             std::cerr << "Error: poll_count_send" << std::endl;
-            throw std::exception();
+            //throw std::exception();
+            return;
           }
           send_buffer(pfds_send[i].fd, buf, nbytes, 0);
           break;

@@ -80,7 +80,7 @@ void HttpParser::parseRequestHostnameAndPort(Request & req) {
 
 int HttpParser::parseContentLength(std::unordered_map<std::string, std::string> header) {
   std::unordered_map<std::string, std::string>::const_iterator it =
-      header.find("CONTEN-LENGTH");
+      header.find("CONTENT-LENGTH");
   if (it == header.end()) {
     return -1;
   }
