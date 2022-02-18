@@ -12,15 +12,17 @@
 #include <cstring>
 #include <exception>
 #include <iostream>
+#include <vector>
 
 #include "httpParser.hpp"
+#define BUFFER_SIZE 32
 
 #define BACKLOG 10
 
-void * get_in_addr(struct sockaddr * sa);
 int get_listener_socket(const char * port);
 int listen_for_connections(int listener_fd);
 int get_connected_socket(const char * hostname, const char * port);
-size_t send_buffer(int target_fd, const char * buf, size_t len, int flags);
+ssize_t send_buffer(int target_fd, const char * buf, size_t len, int flags);
+ssize_t recv_http_message_header(int target_fd, std::string & message);
 void handle_connect_request(int client_fd, int server_fd, Request & request);
 #endif

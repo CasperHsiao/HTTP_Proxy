@@ -142,15 +142,45 @@ int get_connected_socket(const char * hostname, const char * port) {
   return server_fd;
 }
 
-size_t send_buffer(int target_fd, const char * buf, size_t len, int flags) {
-  size_t bytes_sent;
-  size_t total_bytes_sent = 0;
+ssize_t recv_http_message_header(int target_fd, std::string & message) {
+  std::string empty_line("\r\n\r\n");
+  const char * message_including_header;
+  std::vector<char> buf;
+  buf.resize(BUFFER_SIZE, '\0');
+  size_t bytes_recv;
+  size_t total_bytes_recv = 0;
+  while (true) {
+    std::cout << "looping" << std::endl;
+    size_t remaining_size = buf.size() - total_bytes_recv;
+    if (remaining_size < BUFFER_SIZE) {
+      buf.resize(buf.size() * 2, '\0');
+      remaining_size = buf.size() - total_bytes_recv;
+    }
+    if ((bytes_recv =
+             recv(target_fd, &buf.data()[total_bytes_recv], remaining_size, 0)) <= 0) {
+      if (bytes_recv == 0) {
+        return 0;
+      }
+      return -1;
+    }
+    total_bytes_recv += bytes_recv;
+    std::string buf_string(buf.begin(), buf.begin() + total_bytes_recv);
+    if (buf_string.find(empty_line) != std::string::npos) {  // found header
+      message = buf_string;
+      return total_bytes_recv;
+    }
+  }
+}
+
+ssize_t send_buffer(int target_fd, const char * buf, size_t len, int flags) {
+  ssize_t bytes_sent;
+  ssize_t total_bytes_sent = 0;
   size_t bytes_left = len;
   const char * buf_left = buf;
   while (bytes_left > 0) {
     if ((bytes_sent = send(target_fd, buf_left, bytes_left, flags)) == -1) {
       std::cerr << "Error: failed to send to connection tunnel" << std::endl;
-      throw std::exception();
+      return -1;
     }
     total_bytes_sent += bytes_sent;
     bytes_left -= bytes_sent;
@@ -182,28 +212,26 @@ void handle_connect_request(int client_fd, int server_fd, Request & request) {
     int poll_count_recv = poll(pfds_recv, 2, -1);
     if (poll_count_recv == -1) {
       std::cerr << "Error: poll_count_recv" << std::endl;
-      //throw std::exception();
       return;
     }
 
     for (int i = 0; i < 2; i++) {
       if (pfds_recv[i].revents & POLLIN) {
         int nbytes;
-        char buf[65536];
+        char buf[BUFFER_SIZE];
         if ((nbytes = recv(pfds_recv[i].fd, buf, sizeof(buf), 0)) <= 0) {
           std::cerr << "Error: failed to receive from connection tunnel" << std::endl;
-          //throw std::exception();
           return;
         }
-        std::cout << buf << std::endl;
         while (true) {
           int poll_count_send = poll(&pfds_send[i], 1, -1);
           if (poll_count_send == -1) {
             std::cerr << "Error: poll_count_send" << std::endl;
-            //throw std::exception();
             return;
           }
-          send_buffer(pfds_send[i].fd, buf, nbytes, 0);
+          if (send_buffer(pfds_send[i].fd, buf, nbytes, 0) == -1) {
+            return;
+          }
           break;
         }
       }
