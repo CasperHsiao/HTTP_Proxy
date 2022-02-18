@@ -67,13 +67,11 @@ int get_listener_socket(const char * port) {
 void handle_request(int connection_fd) {
   // Receive header from client
   std::string http_request;
-  int nbytes = recv_http_message_header(connection_fd, http_request, 0);
+  int nbytes;
 
-  if (nbytes <= 0) {
+  if ((nbytes = recv_http_message_header(connection_fd, http_request, 0)) <= 0) {
     return;  // DANGER: Needs to check error handling
   }
-
-  std::cout << http_request << std::endl;
   // Parse the header
   HttpParser client_parser(http_request);
 
@@ -97,14 +95,16 @@ void handle_request(int connection_fd) {
 
   if (server_fd < 0) {
     std::cerr << "Error: cannot connect to server's socket" << std::endl;
-    exit(EXIT_FAILURE);
+    return;
   }
 
   // Seperate function calls according to method
   if (client_request.method == "CONNECT") {
+    std::cout << client_request.request << std::endl;
     handle_connect_request(connection_fd, server_fd, client_request);
   }
   else if (client_request.method == "POST") {
+    std::cout << client_request.request << std::endl;
     handle_post_request(connection_fd, server_fd, client_request);
   }
   else if (client_request.method == "GET") {
@@ -242,7 +242,7 @@ ssize_t recv_http_message_header(int target_fd, std::string & message, int flags
   int nbytes;
   if ((nbytes = recv_http_message_with_delimiter(
            target_fd, message, empty_line, flags)) <= 0) {
-    std::cerr << "Error: failed to receive request header" << std::endl;
+    std::cerr << "Error: failed to receive http message header" << std::endl;
   }
   return nbytes;
 }
@@ -261,7 +261,7 @@ ssize_t recv_http_message_body(int target_fd,
     int nbytes;
     if ((nbytes = recv_http_message_with_delimiter(
              target_fd, rest_of_body, delimiter, flags)) <= 0) {
-      std::cerr << "Error: failed to receive request body" << std::endl;
+      std::cerr << "Error: failed to receive http message body" << std::endl;
       return nbytes;
     }
     body += rest_of_body;
@@ -274,11 +274,12 @@ ssize_t recv_http_message_body(int target_fd,
   int bytes_recv;
   int total_bytes_recv = body.size();
   int bytes_left = content_length - total_bytes_recv;
-  char * buf = new char[bytes_left];
+  char * buf = new char[bytes_left + 1];
+  buf[bytes_left] = '\0';
   char * buf_left = buf;
   while (bytes_left > 0) {
     if ((bytes_recv = recv(target_fd, buf_left, bytes_left, flags)) <= 0) {
-      std::cerr << "Error: failed to receive request body" << std::endl;
+      std::cerr << "Error: failed to receive http message body" << std::endl;
       return bytes_recv;
     }
     total_bytes_recv += bytes_recv;
@@ -298,6 +299,28 @@ void handle_post_request(int client_fd, int server_fd, Request & request) {
     std::cerr << "Error: failed to send post request to server" << std::endl;
     return;
   }
+  std::string http_response;
+  if ((nbytes = recv_http_message_header(server_fd, http_response, 0)) <= 0) {
+    return;
+  }
+  HttpParser server_parser(http_response);
+  Response server_response = server_parser.parseResponse();
+  nbytes = recv_http_message_body(server_fd,
+                                  server_response.body,
+                                  server_response.response,
+                                  0,
+                                  server_response.content_length);
+  if (nbytes <= 0) {
+    return;
+  }
+
+  if ((nbytes = send_buffer(client_fd,
+                            server_response.response.c_str(),
+                            server_response.response.size(),
+                            0)) == -1) {
+    return;
+  }
+  return;
 }
 
 void handle_connect_request(int client_fd, int server_fd, Request & request) {
