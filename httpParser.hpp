@@ -25,6 +25,8 @@ class HttpParser {
   void parseRequestHostnameAndPort(Request & req);
   int parseContentLength(std::unordered_map<std::string, std::string> header);
   std::string parseBody();
+
+  void parseFields();
 };
 
 //int getContentLength(std::string message);

@@ -107,7 +107,7 @@ void handle_request(int connection_fd, Cache & LRU_cache) {
     std::cout << "Post\n";
   }
   else if (client_request.method == "GET") {
-    std::cout << "Get\n";
+    handle_get_request(connection_fd, server_fd, client_request, LRU_cache);
   }
   // Shut down both client and server's socket connections
   close(connection_fd);
@@ -338,4 +338,30 @@ void handle_connect_request(int client_fd, int server_fd, Request & request) {
       }
     }
   }
+}
+
+void handle_get_request(int client_fd, int server_fd, Request & request, Cache & LRU_cache){
+    std::string client_request_url = request.url;
+    std::unordered_map<std::string, std::string>::const_iterator fetch_cache = LRU_cache.cache_data.find(client_request_url);
+
+    //std::cout<< "URL: " << client_request_url<< std::endl;
+
+    if(fetch_cache == LRU_cache.cache_data.end()){
+      send(server_fd, request.request.c_str(), request.request.length(), 0);
+      handle_get_response(client_fd, server_fd, LRU_cache);
+    }
+    else{
+        std::cout<< "Cache Exist\n";
+    }
+}
+
+void handle_get_response(int client_fd, int server_fd, Cache & LRU_cache){
+  // Receive response from server
+  char response_file[FILE_LEN];
+  int status = recv(server_fd, &response_file, sizeof(response_file), 0);
+  if (status < 0) {
+    std::cerr << "Error: cannot receive server's response" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  send(client_fd, response_file, FILE_LEN, 0);
 }
