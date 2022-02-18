@@ -21,6 +21,7 @@
 #define CONNECTION_TUNNEL_BUFFER_SIZE 1024
 
 #define BACKLOG 10
+#define FILE_LEN 70000
 
 void * get_in_addr(struct sockaddr * sa);
 ssize_t send_buffer(int target_fd, const char * buf, size_t len, int flags);
@@ -36,6 +37,8 @@ int get_connected_socket(const char * hostname, const char * port);
 void handle_request(int connection_fd);
 void handle_connect_request(int client_fd, int server_fd, Request & request);
 void handle_get_request(int client_fd, int server_fd, Request & request, Cache & LRU_cache);
+void handle_get_response(int client_fd, int server_fd, Cache & LRU_cache);
+
 #endif
 LRU_cache);
 #endif

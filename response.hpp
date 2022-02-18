@@ -16,5 +16,4 @@ class Response {
   std::string body;
 };
 
-void handle_get_response(int client_fd, int server_fd, Cache & LRU_cache);
 #endif

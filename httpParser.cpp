@@ -128,6 +128,7 @@ Response HttpParser::parseResponse() {
   response.content_length = parseContentLength(response.header);
   response.body = parseBody();
   parser_index = 0;
+  parseFields();
   return response;
 }
 
@@ -141,4 +142,8 @@ Request HttpParser::parseRequest() {
   request.body = parseBody();
   parser_index = 0;
   return request;
+}
+
+void HttpParser::parseFields() {
+  
 }
