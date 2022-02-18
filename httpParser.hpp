@@ -1,3 +1,5 @@
+#ifndef __HTTP_PARSER_H__
+#define __HTTP_PARSER_H__
 #include <algorithm>
 #include <iostream>
 #include <string>
@@ -24,3 +26,7 @@ class HttpParser {
   int parseContentLength(std::unordered_map<std::string, std::string> header);
   std::string parseBody();
 };
+
+//int getContentLength(std::string message);
+void toUpperCase(std::string & data);
+#endif

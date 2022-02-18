@@ -17,6 +17,7 @@ int main(int argc, char ** argv) {
   string str =
       string((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
   cout << str << endl;
+
   HttpParser parser(str);
   Request req = parser.parseRequest();
   cout << req.start_line << "()" << endl;  // "()" denotes end of line for display purpose
@@ -25,13 +26,14 @@ int main(int argc, char ** argv) {
     cout << it->first << ":" << it->second << "()" << endl;
   }
   cout << req.body << "()" << endl;
-  cout << "Request object fields" << endl;
-
+  cout << req.body.size() << endl;
+  cout << "Request object fields:" << endl;
   cout << req.method << "()" << endl;
   cout << req.url << "()" << endl;
   cout << req.protocol_version << "()" << endl;
   cout << req.hostname << "()" << endl;
   cout << req.port << "()" << endl;
   cout << req.content_length << "()" << endl;
+
   return EXIT_SUCCESS;
 }

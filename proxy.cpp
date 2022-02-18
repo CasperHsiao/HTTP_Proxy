@@ -1,7 +1,6 @@
+
 #include "networks.hpp"
 #include "request.hpp"
-
-#include <pthread.h>
 
 using namespace std;
 
@@ -23,11 +22,9 @@ int main(int argc, char * argv[]) {
     return EXIT_FAILURE;
   }
 
-  int connection_fd;
   try {
-    connection_fd = listen_for_connections(listener_fd);
+    listen_for_connections(listener_fd);
     // pthread
-    handle_request(listener_fd, connection_fd);
   }
   catch (std::exception & e) {
     std::cout << "Error: client_fd" << std::endl;

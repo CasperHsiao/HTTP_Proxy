@@ -81,15 +81,43 @@ void HttpParser::parseRequestHostnameAndPort(Request & req) {
 int HttpParser::parseContentLength(std::unordered_map<std::string, std::string> header) {
   std::unordered_map<std::string, std::string>::const_iterator it =
       header.find("CONTENT-LENGTH");
-  if (it == header.end()) {
-    return -1;
+  if (it != header.end()) {
+    std::string length = it->second;
+    return stoi(length);
   }
-  std::string length = it->second;
-  return stoi(length);
+  it = header.find("TRANSFER-ENCODING");
+  if (it != header.end()) {
+    std::string encoding(it->second);
+    toUpperCase(encoding);
+    if (encoding == "CHUNKED") {
+      return -1;
+    }
+  }
+  return 0;
 }
 
+/*
+int getContentLength(std::string message) {
+  toUpperCase(message);
+  std::string targ1("CONTENT-LENGTH: ");
+  std::string CRLF("\r\n");
+  size_t index = message.find(targ1);
+  if (index != std::string::npos) {
+    index = index + targ1.size();
+    size_t end_index = message.find(CRLF, index);
+    std::string length = message.substr(index, end_index - index);
+    return stoi(length);
+  }
+  std::string targ2("TRANSFER-ENCODING: CHUNKED");
+  if (message.find(targ2) != std::string::npos) {
+    return -1;
+  }
+  return 0;
+}
+*/
+
 std::string HttpParser::parseBody() {
-  return message.substr(parser_index, message.size() - parser_index);
+  return message.substr(parser_index);
 }
 
 Response HttpParser::parseResponse() {

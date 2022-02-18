@@ -1,5 +1,13 @@
 #include "networks.hpp"
 
+void * get_in_addr(struct sockaddr * sa) {
+  if (sa->sa_family == AF_INET) {
+    return &(((struct sockaddr_in *)sa)->sin_addr);
+  }
+
+  return &(((struct sockaddr_in6 *)sa)->sin6_addr);
+}
+
 int get_listener_socket(const char * port) {
   int sock_fd;
   struct addrinfo host_info, *host_info_list, *p;
@@ -55,16 +63,58 @@ int get_listener_socket(const char * port) {
 
   return sock_fd;
 }
+void handle_request(int connection_fd) {
+  // Receive header from client
+  std::string http_request;
+  int nbytes = recv_http_message_header(connection_fd, http_request, 0);
 
-void * get_in_addr(struct sockaddr * sa) {
-  if (sa->sa_family == AF_INET) {
-    return &(((struct sockaddr_in *)sa)->sin_addr);
+  if (nbytes <= 0) {
+    return;  // DANGER: Needs to check error handling
   }
 
-  return &(((struct sockaddr_in6 *)sa)->sin6_addr);
+  std::cout << http_request << std::endl;
+  // Parse the header
+  HttpParser client_parser(http_request);
+
+  // create a request object
+  Request client_request = client_parser.parseRequest();
+
+  // receive rest of the body
+  nbytes = recv_http_message_body(connection_fd,
+                                  client_request.body,
+                                  client_request.request,
+                                  0,
+                                  client_request.content_length);
+
+  if (nbytes <= 0) {
+    return;  // DANGER: Needs to check error handling
+  }
+
+  // build connection with original server
+  int server_fd =
+      get_connected_socket(client_request.hostname.c_str(), client_request.port.c_str());
+
+  if (server_fd < 0) {
+    std::cerr << "Error: cannot connect to server's socket" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  // Seperate function calls according to method
+  if (client_request.method == "CONNECT") {
+    handle_connect_request(connection_fd, server_fd, client_request);
+  }
+  else if (client_request.method == "POST") {
+    std::cout << "Post\n";
+  }
+  else if (client_request.method == "GET") {
+    std::cout << "Get\n";
+  }
+  // Shut down both client and server's socket connections
+  close(connection_fd);
+  close(server_fd);
 }
 
-int listen_for_connections(int listener_fd) {  // ONLY accept once for now
+void listen_for_connections(int listener_fd) {  // ONLY accept once for now
   int new_fd;
   struct sockaddr_storage client_addr;  // connector's address information
   socklen_t addrlen = sizeof(client_addr);
@@ -90,7 +140,7 @@ int listen_for_connections(int listener_fd) {  // ONLY accept once for now
                 << std::endl;
       std::cout << "Server: keep listening" << std::endl;
     }
-    return new_fd;
+    std::thread(handle_request, new_fd).detach();
   }
   delete pfds;
 }
@@ -142,21 +192,102 @@ int get_connected_socket(const char * hostname, const char * port) {
   return server_fd;
 }
 
-size_t send_buffer(int target_fd, const char * buf, size_t len, int flags) {
-  size_t bytes_sent;
-  size_t total_bytes_sent = 0;
+ssize_t send_buffer(int target_fd, const char * buf, size_t len, int flags) {
+  ssize_t bytes_sent;
+  ssize_t total_bytes_sent = 0;
   size_t bytes_left = len;
   const char * buf_left = buf;
   while (bytes_left > 0) {
     if ((bytes_sent = send(target_fd, buf_left, bytes_left, flags)) == -1) {
-      std::cerr << "Error: failed to send to connection tunnel" << std::endl;
-      throw std::exception();
+      std::cerr << "Error: failed to send entire buffer" << std::endl;
+      return -1;
     }
     total_bytes_sent += bytes_sent;
     bytes_left -= bytes_sent;
     buf_left += bytes_sent;
   }
   return total_bytes_sent;
+}
+
+ssize_t recv_http_message_with_delimiter(int target_fd,
+                                         std::string & message,
+                                         std::string & delimiter,
+                                         int flags) {
+  std::vector<char> buf;
+  buf.resize(HTTP_MSG_BUFFER_SIZE, '\0');
+  size_t bytes_recv;
+  size_t total_bytes_recv = 0;
+  while (true) {
+    size_t remaining_size = buf.size() - total_bytes_recv;
+    if (remaining_size < HTTP_MSG_BUFFER_SIZE) {
+      buf.resize(buf.size() * 2, '\0');
+      remaining_size = buf.size() - total_bytes_recv;
+    }
+    if ((bytes_recv = recv(
+             target_fd, &buf.data()[total_bytes_recv], remaining_size, flags)) <= 0) {
+      return bytes_recv;
+    }
+    total_bytes_recv += bytes_recv;
+    std::string buf_string(buf.begin(), buf.begin() + total_bytes_recv);
+    if (buf_string.find(delimiter) != std::string::npos) {  // found delimiter
+      message = buf_string;
+      return total_bytes_recv;
+    }
+  }
+}
+
+ssize_t recv_http_message_header(int target_fd, std::string & message, int flags) {
+  std::string empty_line("\r\n\r\n");
+  int nbytes;
+  if ((nbytes = recv_http_message_with_delimiter(
+           target_fd, message, empty_line, flags)) <= 0) {
+    std::cerr << "Error: failed to receive request header" << std::endl;
+  }
+  return nbytes;
+}
+
+ssize_t recv_http_message_body(int target_fd,
+                               std::string & body,
+                               std::string & full_message,
+                               int flags,
+                               int content_length) {
+  if (content_length == -1) {  // message is chunked
+    std::string delimiter("0\r\n");
+    if (body.find(delimiter) != std::string::npos) {  // body already received
+      return 1;
+    }
+    std::string rest_of_body;
+    int nbytes;
+    if ((nbytes = recv_http_message_with_delimiter(
+             target_fd, rest_of_body, delimiter, flags)) <= 0) {
+      std::cerr << "Error: failed to receive request body" << std::endl;
+      return nbytes;
+    }
+    body += rest_of_body;
+    full_message += rest_of_body;
+    return nbytes;
+  }
+  if (content_length == 0) {  // no body to receive
+    return 1;
+  }
+  int bytes_recv;
+  int total_bytes_recv = body.size();
+  int bytes_left = content_length - total_bytes_recv;
+  char * buf = new char[bytes_left];
+  char * buf_left = buf;
+  while (bytes_left > 0) {
+    if ((bytes_recv = recv(target_fd, buf_left, bytes_left, flags)) <= 0) {
+      std::cerr << "Error: failed to receive request body" << std::endl;
+      return bytes_recv;
+    }
+    total_bytes_recv += bytes_recv;
+    bytes_left -= bytes_recv;
+    buf_left += bytes_recv;
+  }
+  body += buf;
+  full_message += buf;
+  delete[] buf;
+  return total_bytes_recv;
 }
 
 void handle_connect_request(int client_fd, int server_fd, Request & request) {
@@ -182,28 +313,26 @@ void handle_connect_request(int client_fd, int server_fd, Request & request) {
     int poll_count_recv = poll(pfds_recv, 2, -1);
     if (poll_count_recv == -1) {
       std::cerr << "Error: poll_count_recv" << std::endl;
-      //throw std::exception();
       return;
     }
 
     for (int i = 0; i < 2; i++) {
       if (pfds_recv[i].revents & POLLIN) {
         int nbytes;
-        char buf[65536];
+        char buf[CONNECTION_TUNNEL_BUFFER_SIZE];
         if ((nbytes = recv(pfds_recv[i].fd, buf, sizeof(buf), 0)) <= 0) {
           std::cerr << "Error: failed to receive from connection tunnel" << std::endl;
-          //throw std::exception();
           return;
         }
-        std::cout << buf << std::endl;
         while (true) {
           int poll_count_send = poll(&pfds_send[i], 1, -1);
           if (poll_count_send == -1) {
             std::cerr << "Error: poll_count_send" << std::endl;
-            //throw std::exception();
             return;
           }
-          send_buffer(pfds_send[i].fd, buf, nbytes, 0);
+          if (send_buffer(pfds_send[i].fd, buf, nbytes, 0) == -1) {
+            return;
+          }
           break;
         }
       }

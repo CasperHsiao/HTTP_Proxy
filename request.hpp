@@ -2,8 +2,8 @@
 #define __REQUEST_H__
 
 #include <arpa/inet.h>
-#include <sys/socket.h>
 #include <netdb.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 #include <iostream>
@@ -24,5 +24,5 @@ class Request {
   std::string body;
 };
 
-void handle_request(int listener_fd, int connection_fd);
+void handle_request(int connection_fd);
 #endif
