@@ -17,18 +17,12 @@ int main(int argc, char * argv[]) {
     return EXIT_FAILURE;
   }
 
-<<<<<<< HEAD
-=======
   int connection_fd;
   Cache LRU_cache;
->>>>>>> Finish GET system structure
   try {
     listen_for_connections(listener_fd);
     // pthread
-<<<<<<< HEAD
-=======
     handle_request(connection_fd, LRU_cache);
->>>>>>> Finish GET system structure
   }
   catch (std::exception & e) {
     std::cout << "Error: client_fd" << std::endl;
