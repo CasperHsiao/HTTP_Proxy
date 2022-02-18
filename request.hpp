@@ -26,6 +26,4 @@ class Request {
   std::string body;
 };
 
-void handle_request(int connection_fd, Cache & LRU_cache);
-void handle_get_request(int client_fd, int server_fd, Request & request, Cache & LRU_cache);
 #endif

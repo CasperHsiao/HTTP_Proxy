@@ -18,11 +18,10 @@ int main(int argc, char * argv[]) {
   }
 
   int connection_fd;
-  Cache LRU_cache;
+  Cache * LRU_cache = new Cache();
   try {
-    listen_for_connections(listener_fd);
+    listen_for_connections(listener_fd, *LRU_cache);
     // pthread
-    handle_request(connection_fd, LRU_cache);
   }
   catch (std::exception & e) {
     std::cout << "Error: client_fd" << std::endl;
