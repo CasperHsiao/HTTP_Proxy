@@ -34,4 +34,5 @@ void listen_for_connections(int listener_fd);
 int get_connected_socket(const char * hostname, const char * port);
 void handle_request(int connection_fd);
 void handle_connect_request(int client_fd, int server_fd, Request & request);
+void handle_post_request(int client_fd, int server_fd, Request & request);
 #endif

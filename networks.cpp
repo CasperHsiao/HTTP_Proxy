@@ -63,6 +63,7 @@ int get_listener_socket(const char * port) {
 
   return sock_fd;
 }
+
 void handle_request(int connection_fd) {
   // Receive header from client
   std::string http_request;
@@ -104,7 +105,7 @@ void handle_request(int connection_fd) {
     handle_connect_request(connection_fd, server_fd, client_request);
   }
   else if (client_request.method == "POST") {
-    std::cout << "Post\n";
+    handle_post_request(connection_fd, server_fd, client_request);
   }
   else if (client_request.method == "GET") {
     std::cout << "Get\n";
@@ -290,13 +291,22 @@ ssize_t recv_http_message_body(int target_fd,
   return total_bytes_recv;
 }
 
+void handle_post_request(int client_fd, int server_fd, Request & request) {
+  int nbytes;
+  if ((nbytes = send_buffer(
+           server_fd, request.request.c_str(), request.request.size(), 0)) == -1) {
+    std::cerr << "Error: failed to send post request to server" << std::endl;
+    return;
+  }
+}
+
 void handle_connect_request(int client_fd, int server_fd, Request & request) {
   char msg[] = "HTTP/1.1 200 OK\r\n\r\n";
   int nbytes;
-  if ((nbytes = send(client_fd, msg, strlen(msg) + 1, 0)) ==
+  if ((nbytes = send_buffer(client_fd, msg, strlen(msg) + 1, 0)) ==
       -1) {  // +1 accounts null terminator
     std::cerr << "Error: failed to send connect request success to client" << std::endl;
-    throw std::exception();
+    return;
   }
   struct pollfd * pfds_recv = new struct pollfd[2];
   struct pollfd * pfds_send = new struct pollfd[2];
@@ -324,16 +334,8 @@ void handle_connect_request(int client_fd, int server_fd, Request & request) {
           std::cerr << "Error: failed to receive from connection tunnel" << std::endl;
           return;
         }
-        while (true) {
-          int poll_count_send = poll(&pfds_send[i], 1, -1);
-          if (poll_count_send == -1) {
-            std::cerr << "Error: poll_count_send" << std::endl;
-            return;
-          }
-          if (send_buffer(pfds_send[i].fd, buf, nbytes, 0) == -1) {
-            return;
-          }
-          break;
+        if (send_buffer(pfds_send[i].fd, buf, nbytes, 0) == -1) {
+          return;
         }
       }
     }
