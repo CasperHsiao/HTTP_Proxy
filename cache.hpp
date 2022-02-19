@@ -6,9 +6,11 @@
 #include <unordered_map>
 #include <vector>
 
+#include "response.hpp"
+
 class Cache {
  public:
-  std::unordered_map<std::string, std::string> cache_data;
+  std::unordered_map<std::string, Response> cache_data;
   std::vector<std::string> cache_saved_order;
 };
 

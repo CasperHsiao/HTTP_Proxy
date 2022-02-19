@@ -26,7 +26,7 @@ class HttpParser {
   int parseContentLength(std::unordered_map<std::string, std::string> header);
   std::string parseBody();
 
-  void parseFields();
+  void parseFields(Response & response);
 };
 
 //int getContentLength(std::string message);

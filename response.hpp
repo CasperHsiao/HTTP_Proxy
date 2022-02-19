@@ -4,6 +4,8 @@
 #include <functional>
 #include <string>
 #include <unordered_map>
+#include <ctime>
+
 class Response {
  public:
   std::string response;
@@ -14,6 +16,8 @@ class Response {
   std::string start_line;
   std::unordered_map<std::string, std::string> header;
   std::string body;
+
+  struct tm generate_time;
 };
 
 #endif
