@@ -384,7 +384,7 @@ void handle_get_request(int client_fd, int server_fd, Request & request, Cache &
       }
       else{
         // Detect expire time
-        if(!isExpire(cached_response, LRU_cache)){
+        if(isExpire(cached_response, LRU_cache)){
           // Revalidate
           revalidate(client_fd, server_fd, request, LRU_cache);
           std::cout<< "Expired!!\n";
