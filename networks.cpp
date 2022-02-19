@@ -379,26 +379,54 @@ void handle_get_request(int client_fd, int server_fd, Request & request, Cache &
       // Cache control: No-Cache
       if(cached_response.header["CACHE-CONTROL"].find("no-cache") != std::string::npos){
         // Revalidate
-        
+        revalidate(client_fd, server_fd, request, LRU_cache);
         std::cout << "No-cache\n";
       }
       else{
         // Detect expire time
-        if(isExpire(cached_response, LRU_cache)){
+        if(!isExpire(cached_response, LRU_cache)){
           // Revalidate
+          revalidate(client_fd, server_fd, request, LRU_cache);
+          std::cout<< "Expired!!\n";
         }
         else{
           reply_with_cache(client_fd, request, LRU_cache);
+          std::cout<< "Fresh!!\n";
         }
       }
-
 
       std::cout<< "Cache Exist\n";
     }
 }
 
+void revalidate(int client_fd, int server_fd, Request & request, Cache & LRU_cache){
+  Response cache_response = LRU_cache.cache_data[request.url]; 
+
+  std::string request_new_header = request.request;
+  // Etag
+  if(cache_response.header.find("ETAG") != cache_response.header.end()){
+    std::string etag_resposne = "If-None-Match: " + cache_response.header["ETAG"] + "\r\n";
+
+    std::cout << "Old request: " << request.request << std::endl;
+    request_new_header = request_new_header.insert(request_new_header.length()-2, etag_resposne);
+    std::cout << "New request: " << request_new_header << std::endl;
+  }
+  // Last Modified
+  else if(cache_response.header.find("LAST-MODIFIED") != cache_response.header.end()){
+    std::string lastmodify_resposne = "If-Modified-Since: " + cache_response.header["LAST-MODIFIED"] + "\r\n";
+
+    std::cout << "Old request last modify: " << request.request << std::endl;
+    request_new_header = request_new_header.insert(request_new_header.length()-2, lastmodify_resposne);
+    std::cout << "New request last modify: " << request_new_header << std::endl;
+  }
+
+  // Send the right response to revalidate
+  send_buffer(server_fd, request_new_header.c_str(), request_new_header.size(), 0);
+  handle_revalidate_response(client_fd, server_fd, request, LRU_cache);
+}
+
 void handle_get_response(int client_fd, int server_fd, Request & request, Cache & LRU_cache){
-    // Receive response from client
+  // Receive response from client
   std::string http_response;
   int nbytes;
 
@@ -428,20 +456,19 @@ void handle_get_response(int client_fd, int server_fd, Request & request, Cache 
     LRU_cache.cache_saved_order.push_back(request.url);
     LRU_cache.cache_data[request.url] = server_response;
     
-    std::cout << "No-store\n";
+    std::cout << "No no-store\n";
   }
-  
+
   // std::cout << server_response.protocol_version <<std::endl;
   // std::cout << server_response.status_code <<std::endl;
   // std::cout << server_response.status_text <<std::endl;
   // std::cout << server_response.start_line <<std::endl;
 
-  for(auto it : server_response.header){
-    std::cout << it.first << " " << it.second <<std::endl;
-  }
+  // for(auto it : server_response.header){
+  //   std::cout << it.first << " " << it.second <<std::endl;
+  // }
 
   send_buffer(client_fd, server_response.response.c_str(), server_response.response.size(), 0);
-  // std::cout << "Send GET Response\n";
   
   
   // Chunked = -1
@@ -455,6 +482,66 @@ void handle_get_response(int client_fd, int server_fd, Request & request, Cache 
   //   std::cout << "Send No Chunk\n";
   // }
  
+}
+
+void handle_revalidate_response(int client_fd, int server_fd, Request & request, Cache & LRU_cache){
+  // Receive response from client
+  std::string http_response;
+  int nbytes;
+
+  if ((nbytes = recv_http_message_header(server_fd, http_response, 0)) <= 0) {
+    return;  // DANGER: Needs to check error handling
+  }
+  
+  // Parse the header
+  HttpParser server_parser(http_response);
+
+  // create a response object
+  Response server_response = server_parser.parseResponse();
+
+  // receive rest of the body
+  nbytes = recv_http_message_body(server_fd,
+                                  server_response.body,
+                                  server_response.response,
+                                  0,
+                                  server_response.content_length);
+
+  if (nbytes <= 0) {
+    return;  // DANGER: Needs to check error handling
+  }
+
+  std::cout << "Server Response: \n";
+  std::cout << server_response.protocol_version <<std::endl;
+  std::cout << server_response.status_code <<std::endl;
+  std::cout << server_response.status_text <<std::endl;
+  std::cout << server_response.start_line <<std::endl;
+
+  // 304 retrieve from cache
+  if(server_response.status_code == "304"){
+    reply_with_cache(client_fd, request, LRU_cache);
+    std::cout <<"304\n";
+  }
+  else if (server_response.status_code == "200"){
+    LRU_cache.cache_data[request.url] = server_response;
+    reply_with_cache(client_fd, request, LRU_cache);
+     std::cout <<"200\n";
+  }
+  else{
+    send_buffer(client_fd, server_response.response.c_str(), server_response.response.size(), 0);
+    std::cout <<"500\n";
+  }
+}
+
+void reply_with_cache(int client_fd, Request & request, Cache & LRU_cache){
+  Response cache_response = LRU_cache.cache_data[request.url]; 
+
+  // Implement LRU
+  std::vector<std::string>::iterator it = find(LRU_cache.cache_saved_order.begin(), LRU_cache.cache_saved_order.end(), request.url);
+  
+  LRU_cache.cache_saved_order.erase(it);
+  LRU_cache.cache_saved_order.push_back(request.url);
+
+  send_buffer(client_fd, cache_response.response.c_str(), cache_response.response.size(), 0);
 }
 
 bool isExpire(Response & response, Cache & LRU_cache){
@@ -504,16 +591,4 @@ bool isExpire(Response & response, Cache & LRU_cache){
   }
 
   return false;
-}
-
-void reply_with_cache(int client_fd, Request & request, Cache & LRU_cache){
-  Response cache_response = LRU_cache.cache_data[request.url]; 
-
-  // Implement LRU
-  std::vector<std::string>::iterator it = find(LRU_cache.cache_saved_order.begin(), LRU_cache.cache_saved_order.end(), request.url);
-  
-  LRU_cache.cache_saved_order.erase(it);
-  LRU_cache.cache_saved_order.push_back(request.url);
-
-  send_buffer(client_fd, cache_response.response.c_str(), cache_response.response.size(), 0);
 }

@@ -43,5 +43,7 @@ void handle_get_request(int client_fd, int server_fd, Request & request, Cache &
 void handle_get_response(int client_fd, int server_fd, Request & request, Cache & LRU_cache);
 bool isExpire(Response & response, Cache & LRU_cache);
 void reply_with_cache(int client_fd, Request & request, Cache & LRU_cache);
+void revalidate(int client_fd, int server_fd, Request & request, Cache & LRU_cache);
+void handle_revalidate_response(int client_fd, int server_fd, Request & request, Cache & LRU_cache);
 
 #endif
