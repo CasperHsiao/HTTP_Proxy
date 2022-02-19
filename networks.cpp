@@ -458,31 +458,49 @@ void handle_get_response(int client_fd, int server_fd, Request & request, Cache 
 }
 
 bool isExpire(Response & response, Cache & LRU_cache){
+  // Get current time
+  time_t now = time(NULL);
   // Date
-  struct tm gen_date;
+  struct tm * gen_date = gmtime(&now);
   if(response.header.find("DATE") != response.header.end()){
-    strptime(response.header["DATE"].c_str(), "%a, %d %b %Y %T GMT", &gen_date);
-    std::cout << "Date: " << asctime(&gen_date) << std::endl;
+    std::cout << "Now: " << asctime(gen_date) << std::endl;
+
+    strptime(response.header["DATE"].c_str(), "%a, %d %b %Y %T GMT", gen_date);
+    std::cout << "Date: " << asctime(gen_date) << std::endl;
   }
 
   // Age
-  int age = 0;
+  double age = 0;
   if(response.header.find("AGE") != response.header.end()){
-    age = stoi(response.header["AGE"], nullptr, 10);
+    age = stod(response.header["AGE"]);
     std::cout << "Age: " << age << std::endl;
   }
 
   // Cache control: maxage
   size_t max_age_begin;
-  if((max_age_begin = response.header["CACHE-CONTROL"].find("max-age")) != std::string::npos){
+  const char * max_age_str = "max-age";
+  size_t max_age_strlen = strlen(max_age_str) + 1;
+  if((max_age_begin = response.header["CACHE-CONTROL"].find(max_age_str)) != std::string::npos){
+    double fresh_period = difftime(mktime(gmtime(&now)), mktime(gen_date));
+    std::cout << "Fresh period: " << fresh_period <<std::endl;
 
+    size_t mex_age_end = response.header["CACHE-CONTROL"].find(",", max_age_begin + max_age_strlen);
+    std::string max_age = response.header["CACHE-CONTROL"].substr(max_age_begin + max_age_strlen, mex_age_end);
+    double max_age_convert = stod(max_age) - age;
+
+    std::cout << "Max age: " <<max_age_convert << std::endl;;
+
+    return max_age_convert < fresh_period;
   }
 
   // Expire Time
   struct tm expire_date;
   if(response.header.find("EXPIRES") != response.header.end()){
     strptime(response.header["EXPIRES"].c_str(), "%a, %d %b %Y %T GMT", &expire_date);
+
     std::cout << "Expires: " << asctime(&expire_date) << std::endl;
+
+    return difftime(mktime(&expire_date), now) < 0;
   }
 
   return false;
