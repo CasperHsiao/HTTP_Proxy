@@ -384,7 +384,7 @@ void handle_get_request(int client_fd, int server_fd, Request & request, Cache &
       }
       else{
         // Detect expire time
-        if(isExpire(request, LRU_cache)){
+        if(isExpire(cached_response, LRU_cache)){
           // Revalidate
         }
         else{
@@ -457,8 +457,35 @@ void handle_get_response(int client_fd, int server_fd, Request & request, Cache 
  
 }
 
-bool isExpire(Request & request, Cache & LRU_cache){
-  return true;
+bool isExpire(Response & response, Cache & LRU_cache){
+  // Date
+  struct tm gen_date;
+  if(response.header.find("DATE") != response.header.end()){
+    strptime(response.header["DATE"].c_str(), "%a, %d %b %Y %T GMT", &gen_date);
+    std::cout << "Date: " << asctime(&gen_date) << std::endl;
+  }
+
+  // Age
+  int age = 0;
+  if(response.header.find("AGE") != response.header.end()){
+    age = stoi(response.header["AGE"], nullptr, 10);
+    std::cout << "Age: " << age << std::endl;
+  }
+
+  // Cache control: maxage
+  size_t max_age_begin;
+  if((max_age_begin = response.header["CACHE-CONTROL"].find("max-age")) != std::string::npos){
+
+  }
+
+  // Expire Time
+  struct tm expire_date;
+  if(response.header.find("EXPIRES") != response.header.end()){
+    strptime(response.header["EXPIRES"].c_str(), "%a, %d %b %Y %T GMT", &expire_date);
+    std::cout << "Expires: " << asctime(&expire_date) << std::endl;
+  }
+
+  return false;
 }
 
 void reply_with_cache(int client_fd, Request & request, Cache & LRU_cache){
