@@ -472,4 +472,3 @@ void reply_with_cache(int client_fd, Request & request, Cache & LRU_cache){
 
   send_buffer(client_fd, cache_response.response.c_str(), cache_response.response.size(), 0);
 }
-
