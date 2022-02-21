@@ -1,9 +1,7 @@
 
+#include "cache.hpp"
 #include "networks.hpp"
 #include "request.hpp"
-#include "cache.hpp"
-
-using namespace std;
 
 #define PROXY_PORT "12345"
 
@@ -17,7 +15,7 @@ int main(int argc, char * argv[]) {
     return EXIT_FAILURE;
   }
 
-  int connection_fd;
+  //int connection_fd;
   Cache * LRU_cache = new Cache();
   try {
     listen_for_connections(listener_fd, *LRU_cache);

@@ -10,11 +10,11 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <ctime>
 #include <exception>
 #include <iostream>
 #include <thread>
 #include <vector>
-#include <ctime>
 
 #include "cache.hpp"
 #include "httpParser.hpp"
@@ -27,6 +27,10 @@
 void * get_in_addr(struct sockaddr * sa);
 ssize_t send_buffer(int target_fd, const char * buf, size_t len, int flags);
 ssize_t recv_http_message_header(int target_fd, std::string & message, int flags);
+ssize_t recv_http_message_chunked(int target_fd,
+                                  std::string & body,
+                                  std::string & full_message,
+                                  int flags);
 ssize_t recv_http_message_body(int target_fd,
                                std::string & body,
                                std::string & full_message,
@@ -39,11 +43,20 @@ void handle_request(int connection_fd, Cache & LRU_cache);
 void handle_connect_request(int client_fd, int server_fd, Request & request);
 void handle_post_request(int client_fd, int server_fd, Request & request);
 
-void handle_get_request(int client_fd, int server_fd, Request & request, Cache & LRU_cache);
-void handle_get_response(int client_fd, int server_fd, Request & request, Cache & LRU_cache);
+void handle_get_request(int client_fd,
+                        int server_fd,
+                        Request & request,
+                        Cache & LRU_cache);
+void handle_get_response(int client_fd,
+                         int server_fd,
+                         Request & request,
+                         Cache & LRU_cache);
 bool isExpire(Response & response, Cache & LRU_cache);
 void reply_with_cache(int client_fd, Request & request, Cache & LRU_cache);
 void revalidate(int client_fd, int server_fd, Request & request, Cache & LRU_cache);
-void handle_revalidate_response(int client_fd, int server_fd, Request & request, Cache & LRU_cache);
+void handle_revalidate_response(int client_fd,
+                                int server_fd,
+                                Request & request,
+                                Cache & LRU_cache);
 
 #endif
