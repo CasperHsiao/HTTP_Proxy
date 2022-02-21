@@ -1,6 +1,8 @@
 #ifndef __REQUEST_H__
 #define __REQUEST_H__
 
+#include "cache.hpp"
+
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <sys/socket.h>
@@ -24,5 +26,4 @@ class Request {
   std::string body;
 };
 
-void handle_request(int connection_fd);
 #endif
