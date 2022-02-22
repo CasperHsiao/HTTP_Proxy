@@ -1,16 +1,10 @@
-CCFLAGS= -std=gnu++11 -pedantic -Wall -ggdb3 -pthread
-TARGET = proxy testParser 
+CCFLAGS= -std=gnu++11 -pedantic -Wall -Werror -ggdb3 -pthread
 
-TARGET: $(TARGET)
+proxyd: proxyd.o proxy.o networks.o httpParser.o
+	g++ -o proxyd $(CCFLAGS) proxyd.o proxy.o networks.o httpParser.o
 
-testParser: testParser.o httpParser.o
-	g++ -o testParser $(CCFLAGS) testParser.o httpParser.o
-
-proxy: proxy.o networks.o httpParser.o
-	g++ -o proxy $(CCFLAGS) proxy.o networks.o httpParser.o
-
-%.o: %.cpp networks.hpp httpParser.hpp response.hpp request.hpp cache.hpp
+%.o: %.cpp proxy.hpp networks.hpp httpParser.hpp response.hpp request.hpp cache.hpp
 	g++ -c $(CCFLAGS) $<
 
 clean:
-	rm -f *.o  *~ proxy testParser 
+	rm -f *.o  *~ proxyd  
