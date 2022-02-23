@@ -1,5 +1,9 @@
 #include "networks.hpp"
 
+// Log file
+std::ofstream write_log("proxy.log", std::ofstream::out);
+std::mutex mtx;
+
 void * get_in_addr(struct sockaddr * sa) {
   if (sa->sa_family == AF_INET) {
     return &(((struct sockaddr_in *)sa)->sin_addr);
@@ -63,13 +67,15 @@ int get_listener_socket(const char * port) {
 
   return sock_fd;
 }
+void handle_request(int connection_fd, int request_id, Cache & LRU_cache) {
+  // output_log({"ID: ", std::to_string(request_id)});
 
-void handle_request(int connection_fd, Cache & LRU_cache) {
   // Receive header from client
   std::string http_request;
   int nbytes;
 
   if ((nbytes = recv_http_message_header(connection_fd, http_request, 0)) <= 0) {
+    output_log({std::to_string(request_id), ": WARNING can't receive http header"});
     return;  // DANGER: Needs to check error handling
   }
   // Parse the header
@@ -86,6 +92,7 @@ void handle_request(int connection_fd, Cache & LRU_cache) {
                                   client_request.content_length);
 
   if (nbytes <= 0) {
+    output_log({std::to_string(request_id), ": WARNING can't receive http body"});
     return;  // DANGER: Needs to check error handling
   }
 
@@ -94,19 +101,30 @@ void handle_request(int connection_fd, Cache & LRU_cache) {
       get_connected_socket(client_request.hostname.c_str(), client_request.port.c_str());
 
   if (server_fd < 0) {
-    std::cerr << "Error: cannot connect to server's socket" << std::endl;
+    //std::cerr << "Error: cannot connect to server's socket" << std::endl;
+    output_log({std::to_string(request_id), ": ERROR cannot connect to server's socket"});
     return;
   }
 
   // Seperate function calls according to method
   if (client_request.method == "CONNECT") {
-    handle_connect_request(connection_fd, server_fd, client_request);
+    std::cout << client_request.request << std::endl;
+
+    output_log({std::to_string(request_id), ": Requesting \"", client_request.start_line, "\" from ", client_request.hostname});
+    handle_connect_request(connection_fd, server_fd, request_id, client_request);
+    output_log({std::to_string(request_id), ": Tunnel closed"});
   }
   else if (client_request.method == "POST") {
-    handle_post_request(connection_fd, server_fd, client_request);
+    std::cout << client_request.request << std::endl;
+
+    output_log({std::to_string(request_id), ": Requesting \"", client_request.start_line, "\" from ", client_request.hostname});
+    handle_post_request(connection_fd, server_fd, request_id, client_request);
   }
   else if (client_request.method == "GET") {
-    handle_get_request(connection_fd, server_fd, client_request, LRU_cache);
+    handle_get_request(connection_fd, server_fd, request_id, client_request, LRU_cache);
+  }
+  else{
+    output_log({std::to_string(request_id), ": Responding HTTP/1.1 400 Bad Request"});
   }
   // Shut down both client and server's socket connections
   close(connection_fd);
@@ -116,6 +134,7 @@ void handle_request(int connection_fd, Cache & LRU_cache) {
 void listen_for_connections(int listener_fd,
                             Cache & LRU_cache) {  // ONLY accept once for now
   int new_fd;
+  int request_uid = 0;
   struct sockaddr_storage client_addr;  // connector's address information
   socklen_t addrlen = sizeof(client_addr);
   char clientIP[INET6_ADDRSTRLEN];
@@ -126,8 +145,10 @@ void listen_for_connections(int listener_fd,
   while (true) {
     int poll_count = poll(pfds, 1, -1);
     if (poll_count == -1) {
-      std::cerr << "Error: poll_count accept error" << std::endl;
-      throw std::exception();
+      //std::cerr << "Error: poll_count accept error" << std::endl;
+      output_log({"(no-id): Error poll_count accept error"});
+      continue;
+      //throw std::exception();
     }
 
     new_fd = accept(pfds[0].fd, (struct sockaddr *)&client_addr, &addrlen);
@@ -136,11 +157,12 @@ void listen_for_connections(int listener_fd,
               clientIP,
               INET6_ADDRSTRLEN);
     if (new_fd == -1) {
-      std::cerr << "Error: failed to accpet client connection from " << clientIP
-                << std::endl;
-      std::cout << "Server: keep listening" << std::endl;
+      // std::cerr << "Error: failed to accpet client connection from " << clientIP
+      //           << std::endl;
+      // std::cout << "Server: keep listening" << std::endl;
+      output_log({"(no-id): failed to accpet client connection from ", clientIP});
     }
-    std::thread(handle_request, new_fd, std::ref(LRU_cache)).detach();
+    std::thread(handle_request, new_fd, request_uid++, std::ref(LRU_cache)).detach();
   }
   delete pfds;
 }
@@ -305,15 +327,17 @@ ssize_t recv_http_message_body(int target_fd,
   return total_bytes_recv;
 }
 
-void handle_post_request(int client_fd, int server_fd, Request & request) {
+void handle_post_request(int client_fd, int server_fd, int request_id, Request & request) {
   int nbytes;
   if ((nbytes = send_buffer(
            server_fd, request.request.c_str(), request.request.size(), 0)) == -1) {
-    std::cerr << "Error: failed to send post request to server" << std::endl;
+    //std::cerr << "Error: failed to send post request to server" << std::endl;
+    output_log({std::to_string(request_id), ": ERROR failed to send post request to server"});
     return;
   }
   std::string http_response;
   if ((nbytes = recv_http_message_header(server_fd, http_response, 0)) <= 0) {
+    output_log({std::to_string(request_id), ": WARNING can't receive http header"});
     return;
   }
   HttpParser server_parser(http_response);
@@ -324,6 +348,7 @@ void handle_post_request(int client_fd, int server_fd, Request & request) {
                                   0,
                                   server_response.content_length);
   if (nbytes <= 0) {
+    output_log({std::to_string(request_id), ": WARNING can't receive http body"});
     return;
   }
 
@@ -336,12 +361,17 @@ void handle_post_request(int client_fd, int server_fd, Request & request) {
   return;
 }
 
-void handle_connect_request(int client_fd, int server_fd, Request & request) {
+void handle_connect_request(int client_fd, int server_fd, int request_id, Request & request) {
   char msg[] = "HTTP/1.1 200 OK\r\n\r\n";
+
+  // write log
+  output_log({std::to_string(request_id), ": Responding \"HTTP/1.1 200 OK\""});
+
   int nbytes;
   if ((nbytes = send_buffer(client_fd, msg, strlen(msg) + 1, 0)) ==
       -1) {  // +1 accounts null terminator
     std::cerr << "Error: failed to send connect request success to client" << std::endl;
+    output_log({std::to_string(request_id), ": ERROR failed to send connect request success to client"});
     return;
   }
   struct pollfd * pfds_recv = new struct pollfd[2];
@@ -358,7 +388,8 @@ void handle_connect_request(int client_fd, int server_fd, Request & request) {
   while (true) {
     int poll_count_recv = poll(pfds_recv, 2, -1);
     if (poll_count_recv == -1) {
-      std::cerr << "Error: poll_count_recv" << std::endl;
+      //std::cerr << "Error: poll_count_recv" << std::endl;
+      output_log({std::to_string(request_id), ": ERROR poll_count_recv"});
       return;
     }
 
@@ -367,9 +398,8 @@ void handle_connect_request(int client_fd, int server_fd, Request & request) {
         int nbytes;
         char buf[CONNECTION_TUNNEL_BUFFER_SIZE];
         if ((nbytes = recv(pfds_recv[i].fd, buf, sizeof(buf), 0)) <= 0) {
-          if (nbytes < 0) {
-            std::cerr << "Error: failed to receive from connection tunnel" << std::endl;
-          }
+          //std::cerr << "Error: failed to receive from connection tunnel" << std::endl;
+          output_log({std::to_string(request_id), ": ERROR failed to receive from connection tunnel"});
           return;
         }
         if (send_buffer(pfds_send[i].fd, buf, nbytes, 0) == -1) {
@@ -380,47 +410,48 @@ void handle_connect_request(int client_fd, int server_fd, Request & request) {
   }
 }
 
-void handle_get_request(int client_fd,
-                        int server_fd,
-                        Request & request,
-                        Cache & LRU_cache) {
+void handle_get_request(int client_fd, int server_fd, int request_id, Request & request, Cache & LRU_cache){
   std::string client_request_url = request.url;
-  std::unordered_map<std::string, Response>::iterator fetch_cache =
-      LRU_cache.cache_data.find(client_request_url);
+  std::unordered_map<std::string, Response>::iterator fetch_cache = LRU_cache.cache_data.find(client_request_url);
 
   //std::cout<< "URL: " << client_request_url<< std::endl;
 
-  if (fetch_cache == LRU_cache.cache_data.end()) {
+  if(fetch_cache == LRU_cache.cache_data.end()){
+    output_log({std::to_string(request_id), ": not in cache"});
     send_buffer(server_fd, request.request.c_str(), request.request.size(), 0);
-    handle_get_response(client_fd, server_fd, request, LRU_cache);
+    handle_get_response(client_fd, server_fd, request_id, request, LRU_cache);
   }
-  else {
+  else{
     Response cached_response = fetch_cache->second;
     // Cache control: No-Cache
-    if (cached_response.header["CACHE-CONTROL"].find("no-cache") != std::string::npos) {
+    if(cached_response.header["CACHE-CONTROL"].find("no-cache") != std::string::npos){
+      output_log({std::to_string(request_id), ": in cache, requires validation"});
       // Revalidate
-      revalidate(client_fd, server_fd, request, LRU_cache);
+      revalidate(client_fd, server_fd, request_id, request, LRU_cache);
       std::cout << "No-cache\n";
     }
-    else {
+    else{
       // Detect expire time
-      if (isExpire(cached_response, LRU_cache)) {
+      if(isExpire(cached_response, LRU_cache)){
+        output_log({std::to_string(request_id), ": in cache, but expired at ", cached_response.header["DATE"]});
         // Revalidate
-        revalidate(client_fd, server_fd, request, LRU_cache);
-        std::cout << "Expired!!\n";
+        revalidate(client_fd, server_fd, request_id, request, LRU_cache);
+        std::cout<< "Expired!!\n";
       }
-      else {
+      else{
+        output_log({std::to_string(request_id), ": in cache, valid"});
         reply_with_cache(client_fd, request, LRU_cache);
-        std::cout << "Fresh!!\n";
+        std::cout<< "Fresh!!\n";
       }
     }
+  }
 
     std::cout << "Cache Exist\n";
-  }
 }
 
-void revalidate(int client_fd, int server_fd, Request & request, Cache & LRU_cache) {
-  Response cache_response = LRU_cache.cache_data[request.url];
+
+void revalidate(int client_fd, int server_fd, int request_id, Request & request, Cache & LRU_cache){
+  Response cache_response = LRU_cache.cache_data[request.url]; 
 
   std::string request_new_header = request.request;
   // Etag
@@ -444,15 +475,14 @@ void revalidate(int client_fd, int server_fd, Request & request, Cache & LRU_cac
     std::cout << "New request last modify: " << request_new_header << std::endl;
   }
 
+  output_log({std::to_string(request_id), ": Requesting \"", request.start_line, "\" from ", request.hostname});
+
   // Send the right response to revalidate
   send_buffer(server_fd, request_new_header.c_str(), request_new_header.size(), 0);
-  handle_revalidate_response(client_fd, server_fd, request, LRU_cache);
+  handle_revalidate_response(client_fd, server_fd, request_id, request, LRU_cache);
 }
 
-void handle_get_response(int client_fd,
-                         int server_fd,
-                         Request & request,
-                         Cache & LRU_cache) {
+void handle_get_response(int client_fd, int server_fd, int request_id, Request & request, Cache & LRU_cache){
   // Receive response from client
   std::string http_response;
   int nbytes;
@@ -477,6 +507,8 @@ void handle_get_response(int client_fd,
   if (nbytes <= 0) {
     return;  // DANGER: Needs to check error handling
   }
+
+  output_log({std::to_string(request_id), ": Received \"", server_response.start_line, "\" from ", request.hostname});
 
   // Cache control: No-Store
   if (server_response.header["CACHE-CONTROL"].find("no-store") == std::string::npos) {
@@ -495,9 +527,11 @@ void handle_get_response(int client_fd,
   //   std::cout << it.first << " " << it.second <<std::endl;
   // }
 
-  send_buffer(
-      client_fd, server_response.response.c_str(), server_response.response.size(), 0);
+  output_log({std::to_string(request_id), ": Responding \"", server_response.start_line});
 
+  send_buffer(client_fd, server_response.response.c_str(), server_response.response.size(), 0);
+  
+  
   // Chunked = -1
   // if(server_response.content_length == -1){
   //   send_buffer(client_fd, server_response.response.c_str(), server_response.response.size(), 0);
@@ -510,10 +544,7 @@ void handle_get_response(int client_fd,
   // }
 }
 
-void handle_revalidate_response(int client_fd,
-                                int server_fd,
-                                Request & request,
-                                Cache & LRU_cache) {
+void handle_revalidate_response(int client_fd, int server_fd, int request_id, Request & request, Cache & LRU_cache){
   // Receive response from client
   std::string http_response;
   int nbytes;
@@ -539,6 +570,8 @@ void handle_revalidate_response(int client_fd,
     return;  // DANGER: Needs to check error handling
   }
 
+  output_log({std::to_string(request_id), ": Received \"", server_response.start_line, "\" from ", request.hostname});
+
   std::cout << "Server Response: \n";
   std::cout << server_response.protocol_version << std::endl;
   std::cout << server_response.status_code << std::endl;
@@ -546,19 +579,21 @@ void handle_revalidate_response(int client_fd,
   std::cout << server_response.start_line << std::endl;
 
   // 304 retrieve from cache
-  if (server_response.status_code == "304") {
+  if(server_response.status_code == "304"){
+    output_log({std::to_string(request_id), ": Responding \"HTTP/1.1 304 Not Modified\""});
     reply_with_cache(client_fd, request, LRU_cache);
     std::cout << "304\n";
   }
-  else if (server_response.status_code == "200") {
+  else if (server_response.status_code == "200"){
+    output_log({std::to_string(request_id), ": Responding \"HTTP/1.1 200 OK\""});
     LRU_cache.cache_data[request.url] = server_response;
     reply_with_cache(client_fd, request, LRU_cache);
     std::cout << "200\n";
   }
-  else {
-    send_buffer(
-        client_fd, server_response.response.c_str(), server_response.response.size(), 0);
-    std::cout << "500\n";
+  else{
+    output_log({std::to_string(request_id), ": Responding \"HTTP/1.1 500 Internal Server Error\""});
+    send_buffer(client_fd, server_response.response.c_str(), server_response.response.size(), 0);
+    std::cout <<"500\n";
   }
 }
 
@@ -628,4 +663,14 @@ bool isExpire(Response & response, Cache & LRU_cache) {
   }
 
   return false;
+}
+
+
+void output_log(std::vector<std::string> record){
+  mtx.lock();
+  for(auto t : record){
+    write_log << t;
+  }
+  write_log << std::endl;
+  mtx.unlock();
 }
