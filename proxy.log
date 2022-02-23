@@ -1,0 +1,70 @@
+0: not in cache
+0: Received "HTTP/1.1 200 OK" from www.httpwatch.com
+0: Responding "HTTP/1.1 200 OK
+1: Requesting "CONNECT www.rabihyounes.com:443 HTTP/1.1" from www.rabihyounes.com
+1: Responding "HTTP/1.1 200 OK"
+1: ERROR failed to receive from connection tunnel
+1: Tunnel closed
+2: Requesting "CONNECT contile-images.services.mozilla.com:443 HTTP/1.1" from contile-images.services.mozilla.com
+2: Responding "HTTP/1.1 200 OK"
+3: Requesting "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from incoming.telemetry.mozilla.org
+3: Responding "HTTP/1.1 200 OK"
+4: Requesting "CONNECT img-getpocket.cdn.mozilla.net:443 HTTP/1.1" from img-getpocket.cdn.mozilla.net
+4: Responding "HTTP/1.1 200 OK"
+5: Requesting "POST http://r3.o.lencr.org/ HTTP/1.1" from r3.o.lencr.org
+6: Requesting "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from incoming.telemetry.mozilla.org
+6: Responding "HTTP/1.1 200 OK"
+7: Requesting "CONNECT www.youtube.com:443 HTTP/1.1" from www.youtube.com
+7: Responding "HTTP/1.1 200 OK"
+8: Requesting "CONNECT i.ytimg.com:443 HTTP/1.1" from i.ytimg.com
+8: Responding "HTTP/1.1 200 OK"
+9: Requesting "CONNECT googleads.g.doubleclick.net:443 HTTP/1.1" from googleads.g.doubleclick.net
+9: Responding "HTTP/1.1 200 OK"
+10: Requesting "CONNECT fonts.gstatic.com:443 HTTP/1.1" from fonts.gstatic.com
+10: Responding "HTTP/1.1 200 OK"
+11: Requesting "CONNECT www.google.com:443 HTTP/1.1" from www.google.com
+11: Responding "HTTP/1.1 200 OK"
+12: Requesting "CONNECT www.gstatic.com:443 HTTP/1.1" from www.gstatic.com
+12: Responding "HTTP/1.1 200 OK"
+13: Requesting "CONNECT yt3.ggpht.com:443 HTTP/1.1" from yt3.ggpht.com
+13: Responding "HTTP/1.1 200 OK"
+15: Requesting "CONNECT static.doubleclick.net:443 HTTP/1.1" from static.doubleclick.net
+15: Responding "HTTP/1.1 200 OK"
+14: Requesting "CONNECT jnn-pa.googleapis.com:443 HTTP/1.1" from jnn-pa.googleapis.com
+14: Responding "HTTP/1.1 200 OK"
+17: Requesting "CONNECT www.facebook.com:443 HTTP/1.1" from www.facebook.com
+17: Responding "HTTP/1.1 200 OK"
+18: Requesting "POST http://ocsp.digicert.com/ HTTP/1.1" from ocsp.digicert.com
+20: Requesting "CONNECT static.xx.fbcdn.net:443 HTTP/1.1" from static.xx.fbcdn.net
+20: Responding "HTTP/1.1 200 OK"
+23: Requesting "CONNECT static.xx.fbcdn.net:443 HTTP/1.1" from static.xx.fbcdn.net
+21: Requesting "CONNECT static.xx.fbcdn.net:443 HTTP/1.1" from static.xx.fbcdn.net
+21: Responding "HTTP/1.1 200 OK"
+22: Requesting "CONNECT static.xx.fbcdn.net:443 HTTP/1.1" from static.xx.fbcdn.net
+22: Responding "HTTP/1.1 200 OK"
+23: Responding "HTTP/1.1 200 OK"
+19: Requesting "CONNECT static.xx.fbcdn.net:443 HTTP/1.1" from static.xx.fbcdn.net
+19: Responding "HTTP/1.1 200 OK"
+24: Requesting "CONNECT static.xx.fbcdn.net:443 HTTP/1.1" from static.xx.fbcdn.net
+24: Responding "HTTP/1.1 200 OK"
+25: Requesting "CONNECT safebrowsing.googleapis.com:443 HTTP/1.1" from safebrowsing.googleapis.com
+25: Responding "HTTP/1.1 200 OK"
+22: ERROR failed to receive from connection tunnel
+22: Tunnel closed
+20: ERROR failed to receive from connection tunnel
+20: Tunnel closed
+25: ERROR failed to receive from connection tunnel
+25: Tunnel closed
+19: ERROR failed to receive from connection tunnel
+19: Tunnel closed
+24: ERROR failed to receive from connection tunnel
+24: Tunnel closed
+21: ERROR failed to receive from connection tunnel
+21: Tunnel closed
+27: Requesting "CONNECT static.xx.fbcdn.net:443 HTTP/1.1" from static.xx.fbcdn.net
+27: Responding "HTTP/1.1 200 OK"
+26: Requesting "CONNECT facebook.com:443 HTTP/1.1" from facebook.com
+26: Responding "HTTP/1.1 200 OK"
+28: Requesting "CONNECT www.wikipedia.org:443 HTTP/1.1" from www.wikipedia.org
+28: Responding "HTTP/1.1 200 OK"
+16: WARNING can't receive http header

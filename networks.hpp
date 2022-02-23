@@ -13,8 +13,15 @@
 #include <ctime>
 #include <exception>
 #include <iostream>
+#include <fstream>
 #include <thread>
+#include <string>
 #include <vector>
+<<<<<<< HEAD
+=======
+#include <ctime>
+#include <mutex>
+>>>>>>> Finish adding logfile
 
 #include "cache.hpp"
 #include "httpParser.hpp"
@@ -39,24 +46,16 @@ ssize_t recv_http_message_body(int target_fd,
 int get_listener_socket(const char * port);
 void listen_for_connections(int listener_fd, Cache & LRU_cache);
 int get_connected_socket(const char * hostname, const char * port);
-void handle_request(int connection_fd, Cache & LRU_cache);
-void handle_connect_request(int client_fd, int server_fd, Request & request);
-void handle_post_request(int client_fd, int server_fd, Request & request);
+void handle_request(int connection_fd, int request_id, Cache & LRU_cache);
+void handle_connect_request(int client_fd, int server_fd, int request_id, Request & request);
+void handle_post_request(int client_fd, int server_fd, int request_id, Request & request);
 
-void handle_get_request(int client_fd,
-                        int server_fd,
-                        Request & request,
-                        Cache & LRU_cache);
-void handle_get_response(int client_fd,
-                         int server_fd,
-                         Request & request,
-                         Cache & LRU_cache);
+void handle_get_request(int client_fd, int server_fd, int request_id, Request & request, Cache & LRU_cache);
+void handle_get_response(int client_fd, int server_fd, int request_id, Request & request, Cache & LRU_cache);
 bool isExpire(Response & response, Cache & LRU_cache);
 void reply_with_cache(int client_fd, Request & request, Cache & LRU_cache);
-void revalidate(int client_fd, int server_fd, Request & request, Cache & LRU_cache);
-void handle_revalidate_response(int client_fd,
-                                int server_fd,
-                                Request & request,
-                                Cache & LRU_cache);
+void revalidate(int client_fd, int server_fd, int request_id, Request & request, Cache & LRU_cache);
+void handle_revalidate_response(int client_fd, int server_fd, int request_id, Request & request, Cache & LRU_cache);
+void output_log(std::vector<std::string> record);
 
 #endif

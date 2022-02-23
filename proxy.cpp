@@ -10,7 +10,6 @@ void Proxy::run() {
     return;
   }
 
-  //int connection_fd;
   Cache * LRU_cache = new Cache();
   try {
     listen_for_connections(listener_fd, *LRU_cache);
