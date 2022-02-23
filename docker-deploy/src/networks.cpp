@@ -67,7 +67,10 @@ int get_listener_socket(const char * port) {
 
   return sock_fd;
 }
-void handle_request(int connection_fd, int request_id, std::string clientID, Cache & LRU_cache) {
+void handle_request(int connection_fd,
+                    int request_id,
+                    std::string clientID,
+                    Cache & LRU_cache) {
   // output_log({"ID: ", std::to_string(request_id)});
 
   // Receive header from client
@@ -107,26 +110,40 @@ void handle_request(int connection_fd, int request_id, std::string clientID, Cac
   }
 
   time_t now = time(NULL);
-  output_log({std::to_string(request_id), ": \"", client_request.start_line, "\" from ", clientID, " @ ", asctime(gmtime(&now))});
+  output_log({std::to_string(request_id),
+              ": \"",
+              client_request.start_line,
+              "\" from ",
+              clientID,
+              " @ ",
+              asctime(gmtime(&now))});
   // Seperate function calls according to method
   if (client_request.method == "CONNECT") {
-    std::cout << client_request.request << std::endl;
-
-    output_log({std::to_string(request_id), ": Requesting \"", client_request.start_line, "\" from ", client_request.hostname});
+    output_log({std::to_string(request_id),
+                ": Requesting \"",
+                client_request.start_line,
+                "\" from ",
+                client_request.hostname});
     handle_connect_request(connection_fd, server_fd, request_id, client_request);
     output_log({std::to_string(request_id), ": Tunnel closed"});
   }
   else if (client_request.method == "POST") {
-    std::cout << client_request.request << std::endl;
-
-    output_log({std::to_string(request_id), ": Requesting \"", client_request.start_line, "\" from ", client_request.hostname});
+    output_log({std::to_string(request_id),
+                ": Requesting \"",
+                client_request.start_line,
+                "\" from ",
+                client_request.hostname});
     handle_post_request(connection_fd, server_fd, request_id, client_request);
   }
   else if (client_request.method == "GET") {
-    output_log({std::to_string(request_id), ": Requesting \"", client_request.start_line, "\" from ", client_request.hostname});
+    output_log({std::to_string(request_id),
+                ": Requesting \"",
+                client_request.start_line,
+                "\" from ",
+                client_request.hostname});
     handle_get_request(connection_fd, server_fd, request_id, client_request, LRU_cache);
   }
-  else{
+  else {
     output_log({std::to_string(request_id), ": Responding HTTP/1.1 400 Bad Request"});
   }
   // Shut down both client and server's socket connections
@@ -165,7 +182,9 @@ void listen_for_connections(int listener_fd,
       // std::cout << "Server: keep listening" << std::endl;
       output_log({"(no-id): failed to accpet client connection from ", clientIP});
     }
-    std::thread(handle_request, new_fd, request_uid++, std::string(clientIP), std::ref(LRU_cache)).detach();
+    std::thread(
+        handle_request, new_fd, request_uid++, std::string(clientIP), std::ref(LRU_cache))
+        .detach();
   }
   delete pfds;
 }
@@ -330,12 +349,16 @@ ssize_t recv_http_message_body(int target_fd,
   return total_bytes_recv;
 }
 
-void handle_post_request(int client_fd, int server_fd, int request_id, Request & request) {
+void handle_post_request(int client_fd,
+                         int server_fd,
+                         int request_id,
+                         Request & request) {
   int nbytes;
   if ((nbytes = send_buffer(
            server_fd, request.request.c_str(), request.request.size(), 0)) == -1) {
     //std::cerr << "Error: failed to send post request to server" << std::endl;
-    output_log({std::to_string(request_id), ": ERROR failed to send post request to server"});
+    output_log(
+        {std::to_string(request_id), ": ERROR failed to send post request to server"});
     return;
   }
   std::string http_response;
@@ -364,7 +387,10 @@ void handle_post_request(int client_fd, int server_fd, int request_id, Request &
   return;
 }
 
-void handle_connect_request(int client_fd, int server_fd, int request_id, Request & request) {
+void handle_connect_request(int client_fd,
+                            int server_fd,
+                            int request_id,
+                            Request & request) {
   char msg[] = "HTTP/1.1 200 OK\r\n\r\n";
 
   // write log
@@ -374,7 +400,8 @@ void handle_connect_request(int client_fd, int server_fd, int request_id, Reques
   if ((nbytes = send_buffer(client_fd, msg, strlen(msg) + 1, 0)) ==
       -1) {  // +1 accounts null terminator
     std::cerr << "Error: failed to send connect request success to client" << std::endl;
-    output_log({std::to_string(request_id), ": ERROR failed to send connect request success to client"});
+    output_log({std::to_string(request_id),
+                ": ERROR failed to send connect request success to client"});
     return;
   }
   struct pollfd * pfds_recv = new struct pollfd[2];
@@ -402,10 +429,15 @@ void handle_connect_request(int client_fd, int server_fd, int request_id, Reques
         char buf[CONNECTION_TUNNEL_BUFFER_SIZE];
         if ((nbytes = recv(pfds_recv[i].fd, buf, sizeof(buf), 0)) <= 0) {
           //std::cerr << "Error: failed to receive from connection tunnel" << std::endl;
-          output_log({std::to_string(request_id), ": ERROR failed to receive from connection tunnel"});
+          output_log({std::to_string(request_id),
+                      ": ERROR failed to receive from connection tunnel"});
+          delete[] pfds_recv;
+          delete[] pfds_send;
           return;
         }
-        if (send_buffer(pfds_send[i].fd, buf, nbytes, 0) == -1) {
+        if (send_buffer(pfds_send[i].fd, buf, nbytes, MSG_NOSIGNAL) == -1) {
+          delete[] pfds_recv;
+          delete[] pfds_send;
           return;
         }
       }
@@ -413,48 +445,58 @@ void handle_connect_request(int client_fd, int server_fd, int request_id, Reques
   }
 }
 
-void handle_get_request(int client_fd, int server_fd, int request_id, Request & request, Cache & LRU_cache){
+void handle_get_request(int client_fd,
+                        int server_fd,
+                        int request_id,
+                        Request & request,
+                        Cache & LRU_cache) {
   std::string client_request_url = request.url;
-  std::unordered_map<std::string, Response>::iterator fetch_cache = LRU_cache.cache_data.find(client_request_url);
+  std::unordered_map<std::string, Response>::iterator fetch_cache =
+      LRU_cache.cache_data.find(client_request_url);
 
   //std::cout<< "URL: " << client_request_url<< std::endl;
 
-  if(fetch_cache == LRU_cache.cache_data.end()){
+  if (fetch_cache == LRU_cache.cache_data.end()) {
     output_log({std::to_string(request_id), ": not in cache"});
     send_buffer(server_fd, request.request.c_str(), request.request.size(), 0);
     handle_get_response(client_fd, server_fd, request_id, request, LRU_cache);
   }
-  else{
+  else {
     Response cached_response = fetch_cache->second;
     // Cache control: No-Cache
-    if(cached_response.header["CACHE-CONTROL"].find("no-cache") != std::string::npos){
+    if (cached_response.header["CACHE-CONTROL"].find("no-cache") != std::string::npos) {
       output_log({std::to_string(request_id), ": in cache, requires validation"});
       // Revalidate
       revalidate(client_fd, server_fd, request_id, request, LRU_cache);
-      std::cout << "No-cache\n";
+      //std::cout << "No-cache\n";
     }
-    else{
+    else {
       // Detect expire time
-      if(isExpire(cached_response, LRU_cache)){
-        output_log({std::to_string(request_id), ": in cache, but expired at ", cached_response.header["DATE"]});
+      if (isExpire(cached_response, LRU_cache)) {
+        output_log({std::to_string(request_id),
+                    ": in cache, but expired at ",
+                    cached_response.header["DATE"]});
         // Revalidate
         revalidate(client_fd, server_fd, request_id, request, LRU_cache);
-        std::cout<< "Expired!!\n";
+        //std::cout << "Expired!!\n";
       }
-      else{
+      else {
         output_log({std::to_string(request_id), ": in cache, valid"});
         reply_with_cache(client_fd, request, LRU_cache);
-        std::cout<< "Fresh!!\n";
+        //std::cout << "Fresh!!\n";
       }
     }
   }
 
-    std::cout << "Cache Exist\n";
+  //std::cout << "Cache Exist\n";
 }
 
-
-void revalidate(int client_fd, int server_fd, int request_id, Request & request, Cache & LRU_cache){
-  Response cache_response = LRU_cache.cache_data[request.url]; 
+void revalidate(int client_fd,
+                int server_fd,
+                int request_id,
+                Request & request,
+                Cache & LRU_cache) {
+  Response cache_response = LRU_cache.cache_data[request.url];
 
   std::string request_new_header = request.request;
   // Etag
@@ -462,30 +504,38 @@ void revalidate(int client_fd, int server_fd, int request_id, Request & request,
     std::string etag_resposne =
         "If-None-Match: " + cache_response.header["ETAG"] + "\r\n";
 
-    std::cout << "Old request: " << request.request << std::endl;
+    //std::cout << "Old request: " << request.request << std::endl;
     request_new_header =
         request_new_header.insert(request_new_header.length() - 2, etag_resposne);
-    std::cout << "New request: " << request_new_header << std::endl;
+    //std::cout << "New request: " << request_new_header << std::endl;
   }
   // Last Modified
   else if (cache_response.header.find("LAST-MODIFIED") != cache_response.header.end()) {
     std::string lastmodify_resposne =
         "If-Modified-Since: " + cache_response.header["LAST-MODIFIED"] + "\r\n";
 
-    std::cout << "Old request last modify: " << request.request << std::endl;
+    //std::cout << "Old request last modify: " << request.request << std::endl;
     request_new_header =
         request_new_header.insert(request_new_header.length() - 2, lastmodify_resposne);
-    std::cout << "New request last modify: " << request_new_header << std::endl;
+    //std::cout << "New request last modify: " << request_new_header << std::endl;
   }
 
-  output_log({std::to_string(request_id), ": Requesting \"", request.start_line, "\" from ", request.hostname});
+  output_log({std::to_string(request_id),
+              ": Requesting \"",
+              request.start_line,
+              "\" from ",
+              request.hostname});
 
   // Send the right response to revalidate
   send_buffer(server_fd, request_new_header.c_str(), request_new_header.size(), 0);
   handle_revalidate_response(client_fd, server_fd, request_id, request, LRU_cache);
 }
 
-void handle_get_response(int client_fd, int server_fd, int request_id, Request & request, Cache & LRU_cache){
+void handle_get_response(int client_fd,
+                         int server_fd,
+                         int request_id,
+                         Request & request,
+                         Cache & LRU_cache) {
   // Receive response from client
   std::string http_response;
   int nbytes;
@@ -511,14 +561,18 @@ void handle_get_response(int client_fd, int server_fd, int request_id, Request &
     return;  // DANGER: Needs to check error handling
   }
 
-  output_log({std::to_string(request_id), ": Received \"", server_response.start_line, "\" from ", request.hostname});
+  output_log({std::to_string(request_id),
+              ": Received \"",
+              server_response.start_line,
+              "\" from ",
+              request.hostname});
 
   // Cache control: No-Store
   if (server_response.header["CACHE-CONTROL"].find("no-store") == std::string::npos) {
     LRU_cache.cache_saved_order.push_back(request.url);
     LRU_cache.cache_data[request.url] = server_response;
 
-    std::cout << "No no-store\n";
+    //std::cout << "No no-store\n";
   }
 
   // std::cout << server_response.protocol_version <<std::endl;
@@ -532,9 +586,9 @@ void handle_get_response(int client_fd, int server_fd, int request_id, Request &
 
   output_log({std::to_string(request_id), ": Responding \"", server_response.start_line});
 
-  send_buffer(client_fd, server_response.response.c_str(), server_response.response.size(), 0);
-  
-  
+  send_buffer(
+      client_fd, server_response.response.c_str(), server_response.response.size(), 0);
+
   // Chunked = -1
   // if(server_response.content_length == -1){
   //   send_buffer(client_fd, server_response.response.c_str(), server_response.response.size(), 0);
@@ -547,7 +601,11 @@ void handle_get_response(int client_fd, int server_fd, int request_id, Request &
   // }
 }
 
-void handle_revalidate_response(int client_fd, int server_fd, int request_id, Request & request, Cache & LRU_cache){
+void handle_revalidate_response(int client_fd,
+                                int server_fd,
+                                int request_id,
+                                Request & request,
+                                Cache & LRU_cache) {
   // Receive response from client
   std::string http_response;
   int nbytes;
@@ -573,30 +631,37 @@ void handle_revalidate_response(int client_fd, int server_fd, int request_id, Re
     return;  // DANGER: Needs to check error handling
   }
 
-  output_log({std::to_string(request_id), ": Received \"", server_response.start_line, "\" from ", request.hostname});
+  output_log({std::to_string(request_id),
+              ": Received \"",
+              server_response.start_line,
+              "\" from ",
+              request.hostname});
 
-  std::cout << "Server Response: \n";
-  std::cout << server_response.protocol_version << std::endl;
-  std::cout << server_response.status_code << std::endl;
-  std::cout << server_response.status_text << std::endl;
-  std::cout << server_response.start_line << std::endl;
+  //std::cout << "Server Response: \n";
+  //std::cout << server_response.protocol_version << std::endl;
+  //std::cout << server_response.status_code << std::endl;
+  //std::cout << server_response.status_text << std::endl;
+  //std::cout << server_response.start_line << std::endl;
 
   // 304 retrieve from cache
-  if(server_response.status_code == "304"){
-    output_log({std::to_string(request_id), ": Responding \"HTTP/1.1 304 Not Modified\""});
+  if (server_response.status_code == "304") {
+    output_log(
+        {std::to_string(request_id), ": Responding \"HTTP/1.1 304 Not Modified\""});
     reply_with_cache(client_fd, request, LRU_cache);
-    std::cout << "304\n";
+    //std::cout << "304\n";
   }
-  else if (server_response.status_code == "200"){
+  else if (server_response.status_code == "200") {
     output_log({std::to_string(request_id), ": Responding \"HTTP/1.1 200 OK\""});
     LRU_cache.cache_data[request.url] = server_response;
     reply_with_cache(client_fd, request, LRU_cache);
-    std::cout << "200\n";
+    //std::cout << "200\n";
   }
-  else{
-    output_log({std::to_string(request_id), ": Responding \"HTTP/1.1 500 Internal Server Error\""});
-    send_buffer(client_fd, server_response.response.c_str(), server_response.response.size(), 0);
-    std::cout <<"500\n";
+  else {
+    output_log({std::to_string(request_id),
+                ": Responding \"HTTP/1.1 500 Internal Server Error\""});
+    send_buffer(
+        client_fd, server_response.response.c_str(), server_response.response.size(), 0);
+    //std::cout << "500\n";
   }
 }
 
@@ -621,17 +686,17 @@ bool isExpire(Response & response, Cache & LRU_cache) {
   // Date
   struct tm * gen_date = gmtime(&now);
   if (response.header.find("DATE") != response.header.end()) {
-    std::cout << "Now: " << asctime(gen_date) << std::endl;
+    //std::cout << "Now: " << asctime(gen_date) << std::endl;
 
     strptime(response.header["DATE"].c_str(), "%a, %d %b %Y %T GMT", gen_date);
-    std::cout << "Date: " << asctime(gen_date) << std::endl;
+    //std::cout << "Date: " << asctime(gen_date) << std::endl;
   }
 
   // Age
   double age = 0;
   if (response.header.find("AGE") != response.header.end()) {
     age = stod(response.header["AGE"]);
-    std::cout << "Age: " << age << std::endl;
+    //std::cout << "Age: " << age << std::endl;
   }
 
   // Cache control: maxage
@@ -641,7 +706,7 @@ bool isExpire(Response & response, Cache & LRU_cache) {
   if ((max_age_begin = response.header["CACHE-CONTROL"].find(max_age_str)) !=
       std::string::npos) {
     double fresh_period = difftime(mktime(gmtime(&now)), mktime(gen_date));
-    std::cout << "Fresh period: " << fresh_period << std::endl;
+    //std::cout << "Fresh period: " << fresh_period << std::endl;
 
     size_t mex_age_end =
         response.header["CACHE-CONTROL"].find(",", max_age_begin + max_age_strlen);
@@ -649,7 +714,7 @@ bool isExpire(Response & response, Cache & LRU_cache) {
         max_age_begin + max_age_strlen, mex_age_end);
     double max_age_convert = stod(max_age) - age;
 
-    std::cout << "Max age: " << max_age_convert << std::endl;
+    //std::cout << "Max age: " << max_age_convert << std::endl;
     ;
 
     return max_age_convert < fresh_period;
@@ -660,7 +725,7 @@ bool isExpire(Response & response, Cache & LRU_cache) {
   if (response.header.find("EXPIRES") != response.header.end()) {
     strptime(response.header["EXPIRES"].c_str(), "%a, %d %b %Y %T GMT", &expire_date);
 
-    std::cout << "Expires: " << asctime(&expire_date) << std::endl;
+    //std::cout << "Expires: " << asctime(&expire_date) << std::endl;
 
     return difftime(mktime(&expire_date), now) < 0;
   }
@@ -668,10 +733,9 @@ bool isExpire(Response & response, Cache & LRU_cache) {
   return false;
 }
 
-
-void output_log(std::vector<std::string> record){
+void output_log(std::vector<std::string> record) {
   mtx.lock();
-  for(auto t : record){
+  for (auto t : record) {
     write_log << t;
   }
   write_log << std::endl;
