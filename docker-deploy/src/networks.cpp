@@ -242,7 +242,7 @@ ssize_t send_buffer(int target_fd, const char * buf, size_t len, int flags) {
   size_t bytes_left = len;
   const char * buf_left = buf;
   while (bytes_left > 0) {
-    if ((bytes_sent = send(target_fd, buf_left, bytes_left, flags)) == -1) {
+    if ((bytes_sent = send(target_fd, buf_left, bytes_left, MSG_NOSIGNAL)) == -1) {
       std::cerr << "Error: failed to send entire buffer" << std::endl;
       return -1;
     }
@@ -429,8 +429,10 @@ void handle_connect_request(int client_fd,
         char buf[CONNECTION_TUNNEL_BUFFER_SIZE];
         if ((nbytes = recv(pfds_recv[i].fd, buf, sizeof(buf), 0)) <= 0) {
           //std::cerr << "Error: failed to receive from connection tunnel" << std::endl;
-          output_log({std::to_string(request_id),
-                      ": ERROR failed to receive from connection tunnel"});
+          if (nbytes < 0) {
+            output_log({std::to_string(request_id),
+                        ": ERROR failed to receive from connection tunnel"});
+          }
           delete[] pfds_recv;
           delete[] pfds_send;
           return;
