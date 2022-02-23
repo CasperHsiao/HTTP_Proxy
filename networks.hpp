@@ -17,11 +17,8 @@
 #include <thread>
 #include <string>
 #include <vector>
-<<<<<<< HEAD
-=======
 #include <ctime>
 #include <mutex>
->>>>>>> Finish adding logfile
 
 #include "cache.hpp"
 #include "httpParser.hpp"
