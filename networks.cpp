@@ -1,7 +1,7 @@
 #include "networks.hpp"
 
 // Log file
-std::ofstream write_log("proxy.log", std::ofstream::out);
+std::ofstream write_log("/var/log/erss/proxy.log", std::ofstream::out);
 std::mutex mtx;
 
 void * get_in_addr(struct sockaddr * sa) {
@@ -67,7 +67,7 @@ int get_listener_socket(const char * port) {
 
   return sock_fd;
 }
-void handle_request(int connection_fd, int request_id, Cache & LRU_cache) {
+void handle_request(int connection_fd, int request_id, std::string clientID, Cache & LRU_cache) {
   // output_log({"ID: ", std::to_string(request_id)});
 
   // Receive header from client
@@ -106,6 +106,8 @@ void handle_request(int connection_fd, int request_id, Cache & LRU_cache) {
     return;
   }
 
+  time_t now = time(NULL);
+  output_log({std::to_string(request_id), ": \"", client_request.start_line, "\" from ", clientID, " @ ", asctime(gmtime(&now))});
   // Seperate function calls according to method
   if (client_request.method == "CONNECT") {
     std::cout << client_request.request << std::endl;
@@ -121,6 +123,7 @@ void handle_request(int connection_fd, int request_id, Cache & LRU_cache) {
     handle_post_request(connection_fd, server_fd, request_id, client_request);
   }
   else if (client_request.method == "GET") {
+    output_log({std::to_string(request_id), ": Requesting \"", client_request.start_line, "\" from ", client_request.hostname});
     handle_get_request(connection_fd, server_fd, request_id, client_request, LRU_cache);
   }
   else{
@@ -162,7 +165,7 @@ void listen_for_connections(int listener_fd,
       // std::cout << "Server: keep listening" << std::endl;
       output_log({"(no-id): failed to accpet client connection from ", clientIP});
     }
-    std::thread(handle_request, new_fd, request_uid++, std::ref(LRU_cache)).detach();
+    std::thread(handle_request, new_fd, request_uid++, std::string(clientIP), std::ref(LRU_cache)).detach();
   }
   delete pfds;
 }

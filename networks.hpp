@@ -43,7 +43,7 @@ ssize_t recv_http_message_body(int target_fd,
 int get_listener_socket(const char * port);
 void listen_for_connections(int listener_fd, Cache & LRU_cache);
 int get_connected_socket(const char * hostname, const char * port);
-void handle_request(int connection_fd, int request_id, Cache & LRU_cache);
+void handle_request(int connection_fd, int request_id, std::string clientID, Cache & LRU_cache);
 void handle_connect_request(int client_fd, int server_fd, int request_id, Request & request);
 void handle_post_request(int client_fd, int server_fd, int request_id, Request & request);
 
