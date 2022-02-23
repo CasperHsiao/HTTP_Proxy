@@ -1,70 +1,326 @@
 0: not in cache
-0: Received "HTTP/1.1 200 OK" from www.httpwatch.com
+0: Received "HTTP/1.1 200 OK" from detectportal.firefox.com
 0: Responding "HTTP/1.1 200 OK
-1: Requesting "CONNECT www.rabihyounes.com:443 HTTP/1.1" from www.rabihyounes.com
+1: Requesting "CONNECT contile.services.mozilla.com:443 HTTP/1.1" from contile.services.mozilla.com
 1: Responding "HTTP/1.1 200 OK"
+2: not in cache
+2: Received "HTTP/1.1 200 OK" from detectportal.firefox.com
+2: Responding "HTTP/1.1 200 OK
+3: Requesting "CONNECT spocs.getpocket.com:443 HTTP/1.1" from spocs.getpocket.com
+3: Responding "HTTP/1.1 200 OK"
+4: Requesting "CONNECT content-signature-2.cdn.mozilla.net:443 HTTP/1.1" from content-signature-2.cdn.mozilla.net
+4: Responding "HTTP/1.1 200 OK"
+4: ERROR failed to receive from connection tunnel
+4: Tunnel closed
+5: Requesting "POST http://r3.o.lencr.org/ HTTP/1.1" from r3.o.lencr.org
+6: Requesting "CONNECT firefox.settings.services.mozilla.com:443 HTTP/1.1" from firefox.settings.services.mozilla.com
+6: Responding "HTTP/1.1 200 OK"
+7: Requesting "POST http://ocsp.sca1b.amazontrust.com/ HTTP/1.1" from ocsp.sca1b.amazontrust.com
+9: Requesting "CONNECT img-getpocket.cdn.mozilla.net:443 HTTP/1.1" from img-getpocket.cdn.mozilla.net
+9: Responding "HTTP/1.1 200 OK"
+10: Requesting "CONNECT img-getpocket.cdn.mozilla.net:443 HTTP/1.1" from img-getpocket.cdn.mozilla.net
+10: Responding "HTTP/1.1 200 OK"
+11: Requesting "CONNECT safebrowsing.googleapis.com:443 HTTP/1.1" from safebrowsing.googleapis.com
+11: Responding "HTTP/1.1 200 OK"
+13: Requesting "CONNECT img-getpocket.cdn.mozilla.net:443 HTTP/1.1" from img-getpocket.cdn.mozilla.net
+13: Responding "HTTP/1.1 200 OK"
+12: Requesting "CONNECT img-getpocket.cdn.mozilla.net:443 HTTP/1.1" from img-getpocket.cdn.mozilla.net
+12: Responding "HTTP/1.1 200 OK"
+8: Requesting "CONNECT push.services.mozilla.com:443 HTTP/1.1" from push.services.mozilla.com
+8: Responding "HTTP/1.1 200 OK"
+14: Requesting "CONNECT img-getpocket.cdn.mozilla.net:443 HTTP/1.1" from img-getpocket.cdn.mozilla.net
+14: Responding "HTTP/1.1 200 OK"
+15: Requesting "CONNECT img-getpocket.cdn.mozilla.net:443 HTTP/1.1" from img-getpocket.cdn.mozilla.net
+15: Responding "HTTP/1.1 200 OK"
+17: Requesting "CONNECT contile-images.services.mozilla.com:443 HTTP/1.1" from contile-images.services.mozilla.com
+17: Responding "HTTP/1.1 200 OK"
+16: Requesting "CONNECT contile-images.services.mozilla.com:443 HTTP/1.1" from contile-images.services.mozilla.com
+16: Responding "HTTP/1.1 200 OK"
+18: Requesting "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from incoming.telemetry.mozilla.org
+18: Responding "HTTP/1.1 200 OK"
+19: Requesting "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from incoming.telemetry.mozilla.org
+19: Responding "HTTP/1.1 200 OK"
+20: Requesting "CONNECT getpocket.cdn.mozilla.net:443 HTTP/1.1" from getpocket.cdn.mozilla.net
+20: Responding "HTTP/1.1 200 OK"
+21: Requesting "POST http://r3.o.lencr.org/ HTTP/1.1" from r3.o.lencr.org
+23: Requesting "POST http://r3.o.lencr.org/ HTTP/1.1" from r3.o.lencr.org
+25: Requesting "POST http://r3.o.lencr.org/ HTTP/1.1" from r3.o.lencr.org
+24: Requesting "POST http://r3.o.lencr.org/ HTTP/1.1" from r3.o.lencr.org
+22: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+27: Requesting "POST http://r3.o.lencr.org/ HTTP/1.1" from r3.o.lencr.org
+30: Requesting "POST http://r3.o.lencr.org/ HTTP/1.1" from r3.o.lencr.org
+9: ERROR failed to receive from connection tunnel
+9: Tunnel closed
+12: ERROR failed to receive from connection tunnel
+12: Tunnel closed
+14: ERROR failed to receive from connection tunnel
+14: Tunnel closed
+13: ERROR failed to receive from connection tunnel
+13: Tunnel closed
+26: Requesting "POST http://ocsp.digicert.com/ HTTP/1.1" from ocsp.digicert.com
+28: Requesting "POST http://ocsp.digicert.com/ HTTP/1.1" from ocsp.digicert.com
+29: Requesting "POST http://ocsp.digicert.com/ HTTP/1.1" from ocsp.digicert.com
+15: ERROR failed to receive from connection tunnel
+15: Tunnel closed
+11: ERROR failed to receive from connection tunnel
+11: Tunnel closed
+31: Requesting "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from incoming.telemetry.mozilla.org
+31: Responding "HTTP/1.1 200 OK"
+32: WARNING can't receive http header
+17: ERROR failed to receive from connection tunnel
+17: Tunnel closed
+33: Requesting "POST http://r3.o.lencr.org/ HTTP/1.1" from r3.o.lencr.org
+18: ERROR failed to receive from connection tunnel
+18: Tunnel closed
+34: Requesting "CONNECT firefox.settings.services.mozilla.com:443 HTTP/1.1" from firefox.settings.services.mozilla.com
+34: Responding "HTTP/1.1 200 OK"
+35: Requesting "CONNECT content-signature-2.cdn.mozilla.net:443 HTTP/1.1" from content-signature-2.cdn.mozilla.net
+35: Responding "HTTP/1.1 200 OK"
+36: Requesting "CONNECT shavar.services.mozilla.com:443 HTTP/1.1" from shavar.services.mozilla.com
+36: Responding "HTTP/1.1 200 OK"
+37: Requesting "POST http://ocsp.digicert.com/ HTTP/1.1" from ocsp.digicert.com
+36: ERROR failed to receive from connection tunnel
+36: Tunnel closed
+38: Requesting "CONNECT www.google.com:443 HTTP/1.1" from www.google.com
+38: Responding "HTTP/1.1 200 OK"
+38: ERROR failed to receive from connection tunnel
+38: Tunnel closed
+39: Requesting "CONNECT www.google.com:443 HTTP/1.1" from www.google.com
+39: Responding "HTTP/1.1 200 OK"
+40: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+41: Requesting "CONNECT www.google.com:443 HTTP/1.1" from www.google.com
+41: Responding "HTTP/1.1 200 OK"
+42: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+46: Requesting "CONNECT adservice.google.com:443 HTTP/1.1" from adservice.google.com
+46: Responding "HTTP/1.1 200 OK"
+47: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+46: ERROR failed to receive from connection tunnel
+46: Tunnel closed
+48: Requesting "CONNECT unix.stackexchange.com:443 HTTP/1.1" from unix.stackexchange.com
+48: Responding "HTTP/1.1 200 OK"
+49: Requesting "CONNECT ajax.googleapis.com:443 HTTP/1.1" from ajax.googleapis.com
+49: Responding "HTTP/1.1 200 OK"
+51: Requesting "CONNECT cdn.sstatic.net:443 HTTP/1.1" from cdn.sstatic.net
+51: Responding "HTTP/1.1 200 OK"
+52: Requesting "CONNECT cdn.sstatic.net:443 HTTP/1.1" from cdn.sstatic.net
+52: Responding "HTTP/1.1 200 OK"
+50: Requesting "CONNECT cdn.sstatic.net:443 HTTP/1.1" from cdn.sstatic.net
+50: Responding "HTTP/1.1 200 OK"
+54: Requesting "CONNECT cdn.sstatic.net:443 HTTP/1.1" from cdn.sstatic.net
+54: Responding "HTTP/1.1 200 OK"
+53: Requesting "CONNECT cdn.sstatic.net:443 HTTP/1.1" from cdn.sstatic.net
+53: Responding "HTTP/1.1 200 OK"
+55: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+52: ERROR failed to receive from connection tunnel
+52: Tunnel closed
+53: ERROR failed to receive from connection tunnel
+53: Tunnel closed
+54: ERROR failed to receive from connection tunnel
+50: ERROR failed to receive from connection tunnel
+50: Tunnel closed
+54: Tunnel closed
+57: Requesting "CONNECT www.gravatar.com:443 HTTP/1.1" from www.gravatar.com
+57: Responding "HTTP/1.1 200 OK"
+56: Requesting "CONNECT www.gravatar.com:443 HTTP/1.1" from www.gravatar.com
+56: Responding "HTTP/1.1 200 OK"
+58: Requesting "CONNECT www.gravatar.com:443 HTTP/1.1" from www.gravatar.com
+58: Responding "HTTP/1.1 200 OK"
+61: Requesting "CONNECT www.gravatar.com:443 HTTP/1.1" from www.gravatar.com
+61: Responding "HTTP/1.1 200 OK"
+59: Requesting "CONNECT i.stack.imgur.com:443 HTTP/1.1" from i.stack.imgur.com
+59: Responding "HTTP/1.1 200 OK"
+60: Requesting "CONNECT i.stack.imgur.com:443 HTTP/1.1" from i.stack.imgur.com
+60: Responding "HTTP/1.1 200 OK"
+56: ERROR failed to receive from connection tunnel
+56: Tunnel closed
+61: ERROR failed to receive from connection tunnel
+61: Tunnel closed
+58: ERROR failed to receive from connection tunnel
+58: Tunnel closed
+59: ERROR failed to receive from connection tunnel
+59: Tunnel closed
+63: Requesting "CONNECT pagead2.googlesyndication.com:443 HTTP/1.1" from pagead2.googlesyndication.com
+63: Responding "HTTP/1.1 200 OK"
+62: Requesting "CONNECT ad.doubleclick.net:443 HTTP/1.1" from ad.doubleclick.net
+62: Responding "HTTP/1.1 200 OK"
+64: Requesting "CONNECT www.google-analytics.com:443 HTTP/1.1" from www.google-analytics.com
+64: Responding "HTTP/1.1 200 OK"
+65: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+67: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+66: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+68: Requesting "CONNECT qa.sockets.stackexchange.com:443 HTTP/1.1" from qa.sockets.stackexchange.com
+68: Responding "HTTP/1.1 200 OK"
+69: Requesting "CONNECT stats.g.doubleclick.net:443 HTTP/1.1" from stats.g.doubleclick.net
+69: Responding "HTTP/1.1 200 OK"
+70: Requesting "CONNECT cc1dd43913c233854ab8c8773e6962f5.safeframe.googlesyndication.com:443 HTTP/1.1" from cc1dd43913c233854ab8c8773e6962f5.safeframe.googlesyndication.com
+70: Responding "HTTP/1.1 200 OK"
+71: Requesting "CONNECT www.googletagservices.com:443 HTTP/1.1" from www.googletagservices.com
+71: Responding "HTTP/1.1 200 OK"
+73: Requesting "CONNECT www.googletagservices.com:443 HTTP/1.1" from www.googletagservices.com
+73: Responding "HTTP/1.1 200 OK"
+72: Requesting "CONNECT clc.stackoverflow.com:443 HTTP/1.1" from clc.stackoverflow.com
+72: Responding "HTTP/1.1 200 OK"
+73: ERROR failed to receive from connection tunnel
+73: Tunnel closed
+43: WARNING can't receive http header
+74: Requesting "CONNECT s0.2mdn.net:443 HTTP/1.1" from s0.2mdn.net
+74: Responding "HTTP/1.1 200 OK"
+75: Requesting "CONNECT tpc.googlesyndication.com:443 HTTP/1.1" from tpc.googlesyndication.com
+75: Responding "HTTP/1.1 200 OK"
+78: Requesting "CONNECT tpc.googlesyndication.com:443 HTTP/1.1" from tpc.googlesyndication.com
+78: Responding "HTTP/1.1 200 OK"
+77: Requesting "CONNECT fonts.gstatic.com:443 HTTP/1.1" from fonts.gstatic.com
+77: Responding "HTTP/1.1 200 OK"
+76: Requesting "CONNECT fonts.gstatic.com:443 HTTP/1.1" from fonts.gstatic.com
+76: Responding "HTTP/1.1 200 OK"
+79: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+81: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+82: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+80: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+76: ERROR failed to receive from connection tunnel
+76: Tunnel closed
+78: ERROR failed to receive from connection tunnel
+78: Tunnel closed
+44: WARNING can't receive http header
+45: WARNING can't receive http header
+57: ERROR failed to receive from connection tunnel
+57: Tunnel closed
+83: in cache, but expired at Tue, 22 Feb 2022 22:24:53 GMT
+83: Requesting "GET http://detectportal.firefox.com/canonical.html HTTP/1.1" from detectportal.firefox.com
+83: Received "HTTP/1.1 200 OK" from detectportal.firefox.com
+83: Responding "HTTP/1.1 200 OK"
+84: in cache, but expired at Wed, 23 Feb 2022 02:18:30 GMT
+84: Requesting "GET http://detectportal.firefox.com/success.txt?ipv4 HTTP/1.1" from detectportal.firefox.com
+84: Received "HTTP/1.1 200 OK" from detectportal.firefox.com
+84: Responding "HTTP/1.1 200 OK"
+85: Requesting "CONNECT aus5.mozilla.org:443 HTTP/1.1" from aus5.mozilla.org
+85: Responding "HTTP/1.1 200 OK"
+86: Requesting "POST http://ocsp.digicert.com/ HTTP/1.1" from ocsp.digicert.com
+6: ERROR failed to receive from connection tunnel
+6: Tunnel closed
+34: ERROR failed to receive from connection tunnel
+34: Tunnel closed
+68: ERROR failed to receive from connection tunnel
+68: Tunnel closed
+87: Requesting "CONNECT www.httpbin.org:443 HTTP/1.1" from www.httpbin.org
+87: Responding "HTTP/1.1 200 OK"
+88: Requesting "POST http://ocsp.sca1b.amazontrust.com/ HTTP/1.1" from ocsp.sca1b.amazontrust.com
+89: Requesting "CONNECT www.youtube.com:443 HTTP/1.1" from www.youtube.com
+89: Responding "HTTP/1.1 200 OK"
+3: ERROR failed to receive from connection tunnel
+3: Tunnel closed
+16: ERROR failed to receive from connection tunnel
+16: Tunnel closed
 1: ERROR failed to receive from connection tunnel
 1: Tunnel closed
-2: Requesting "CONNECT contile-images.services.mozilla.com:443 HTTP/1.1" from contile-images.services.mozilla.com
-2: Responding "HTTP/1.1 200 OK"
-3: Requesting "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from incoming.telemetry.mozilla.org
-3: Responding "HTTP/1.1 200 OK"
-4: Requesting "CONNECT img-getpocket.cdn.mozilla.net:443 HTTP/1.1" from img-getpocket.cdn.mozilla.net
-4: Responding "HTTP/1.1 200 OK"
-5: Requesting "POST http://r3.o.lencr.org/ HTTP/1.1" from r3.o.lencr.org
-6: Requesting "CONNECT incoming.telemetry.mozilla.org:443 HTTP/1.1" from incoming.telemetry.mozilla.org
-6: Responding "HTTP/1.1 200 OK"
-7: Requesting "CONNECT www.youtube.com:443 HTTP/1.1" from www.youtube.com
-7: Responding "HTTP/1.1 200 OK"
-8: Requesting "CONNECT i.ytimg.com:443 HTTP/1.1" from i.ytimg.com
-8: Responding "HTTP/1.1 200 OK"
-9: Requesting "CONNECT googleads.g.doubleclick.net:443 HTTP/1.1" from googleads.g.doubleclick.net
-9: Responding "HTTP/1.1 200 OK"
-10: Requesting "CONNECT fonts.gstatic.com:443 HTTP/1.1" from fonts.gstatic.com
-10: Responding "HTTP/1.1 200 OK"
-11: Requesting "CONNECT www.google.com:443 HTTP/1.1" from www.google.com
-11: Responding "HTTP/1.1 200 OK"
-12: Requesting "CONNECT www.gstatic.com:443 HTTP/1.1" from www.gstatic.com
-12: Responding "HTTP/1.1 200 OK"
-13: Requesting "CONNECT yt3.ggpht.com:443 HTTP/1.1" from yt3.ggpht.com
-13: Responding "HTTP/1.1 200 OK"
-15: Requesting "CONNECT static.doubleclick.net:443 HTTP/1.1" from static.doubleclick.net
-15: Responding "HTTP/1.1 200 OK"
-14: Requesting "CONNECT jnn-pa.googleapis.com:443 HTTP/1.1" from jnn-pa.googleapis.com
-14: Responding "HTTP/1.1 200 OK"
-17: Requesting "CONNECT www.facebook.com:443 HTTP/1.1" from www.facebook.com
-17: Responding "HTTP/1.1 200 OK"
-18: Requesting "POST http://ocsp.digicert.com/ HTTP/1.1" from ocsp.digicert.com
-20: Requesting "CONNECT static.xx.fbcdn.net:443 HTTP/1.1" from static.xx.fbcdn.net
-20: Responding "HTTP/1.1 200 OK"
-23: Requesting "CONNECT static.xx.fbcdn.net:443 HTTP/1.1" from static.xx.fbcdn.net
-21: Requesting "CONNECT static.xx.fbcdn.net:443 HTTP/1.1" from static.xx.fbcdn.net
-21: Responding "HTTP/1.1 200 OK"
-22: Requesting "CONNECT static.xx.fbcdn.net:443 HTTP/1.1" from static.xx.fbcdn.net
-22: Responding "HTTP/1.1 200 OK"
-23: Responding "HTTP/1.1 200 OK"
-19: Requesting "CONNECT static.xx.fbcdn.net:443 HTTP/1.1" from static.xx.fbcdn.net
-19: Responding "HTTP/1.1 200 OK"
-24: Requesting "CONNECT static.xx.fbcdn.net:443 HTTP/1.1" from static.xx.fbcdn.net
-24: Responding "HTTP/1.1 200 OK"
-25: Requesting "CONNECT safebrowsing.googleapis.com:443 HTTP/1.1" from safebrowsing.googleapis.com
-25: Responding "HTTP/1.1 200 OK"
-22: ERROR failed to receive from connection tunnel
-22: Tunnel closed
 20: ERROR failed to receive from connection tunnel
 20: Tunnel closed
-25: ERROR failed to receive from connection tunnel
-25: Tunnel closed
+90: Requesting "CONNECT i.ytimg.com:443 HTTP/1.1" from i.ytimg.com
+90: Responding "HTTP/1.1 200 OK"
+91: Requesting "CONNECT fonts.googleapis.com:443 HTTP/1.1" from fonts.googleapis.com
+91: Responding "HTTP/1.1 200 OK"
+92: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+93: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+94: Requesting "CONNECT accounts.google.com:443 HTTP/1.1" from accounts.google.com
+94: Responding "HTTP/1.1 200 OK"
+95: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+35: ERROR failed to receive from connection tunnel
+35: Tunnel closed
+31: ERROR failed to receive from connection tunnel
+31: Tunnel closed
+96: Requesting "CONNECT googleads.g.doubleclick.net:443 HTTP/1.1" from googleads.g.doubleclick.net
+96: Responding "HTTP/1.1 200 OK"
+97: Requesting "CONNECT www.gstatic.com:443 HTTP/1.1" from www.gstatic.com
+97: Responding "HTTP/1.1 200 OK"
+98: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+99: Requesting "CONNECT yt3.ggpht.com:443 HTTP/1.1" from yt3.ggpht.com
+99: Responding "HTTP/1.1 200 OK"
+100: Requesting "CONNECT yt3.ggpht.com:443 HTTP/1.1" from yt3.ggpht.com
+100: Responding "HTTP/1.1 200 OK"
+101: Requesting "CONNECT yt3.ggpht.com:443 HTTP/1.1" from yt3.ggpht.com
+101: Responding "HTTP/1.1 200 OK"
+103: Requesting "CONNECT yt3.ggpht.com:443 HTTP/1.1" from yt3.ggpht.com
+103: Responding "HTTP/1.1 200 OK"
+102: Requesting "CONNECT yt3.ggpht.com:443 HTTP/1.1" from yt3.ggpht.com
+102: Responding "HTTP/1.1 200 OK"
+104: Requesting "CONNECT yt3.ggpht.com:443 HTTP/1.1" from yt3.ggpht.com
+104: Responding "HTTP/1.1 200 OK"
+106: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+109: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+105: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+107: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+108: Requesting "POST http://ocsp.pki.goog/gts1c3 HTTP/1.1" from ocsp.pki.goog
+101: ERROR failed to receive from connection tunnel
+100: ERROR failed to receive from connection tunnel
+100: Tunnel closed
+101: Tunnel closed
+104: ERROR failed to receive from connection tunnel
+104: Tunnel closed
+103: ERROR failed to receive from connection tunnel
+103: Tunnel closed
+102: ERROR failed to receive from connection tunnel
+102: Tunnel closed
+110: Requesting "CONNECT static.doubleclick.net:443 HTTP/1.1" from static.doubleclick.net
+110: Responding "HTTP/1.1 200 OK"
+111: Requesting "CONNECT youtube.com:443 HTTP/1.1" from youtube.com
+111: Responding "HTTP/1.1 200 OK"
+10: ERROR failed to receive from connection tunnel
+10: Tunnel closed
+39: ERROR failed to receive from connection tunnel
+39: Tunnel closed
 19: ERROR failed to receive from connection tunnel
 19: Tunnel closed
-24: ERROR failed to receive from connection tunnel
-24: Tunnel closed
-21: ERROR failed to receive from connection tunnel
-21: Tunnel closed
-27: Requesting "CONNECT static.xx.fbcdn.net:443 HTTP/1.1" from static.xx.fbcdn.net
-27: Responding "HTTP/1.1 200 OK"
-26: Requesting "CONNECT facebook.com:443 HTTP/1.1" from facebook.com
-26: Responding "HTTP/1.1 200 OK"
-28: Requesting "CONNECT www.wikipedia.org:443 HTTP/1.1" from www.wikipedia.org
-28: Responding "HTTP/1.1 200 OK"
-16: WARNING can't receive http header
+49: ERROR failed to receive from connection tunnel
+49: Tunnel closed
+51: ERROR failed to receive from connection tunnel
+51: Tunnel closed
+48: ERROR failed to receive from connection tunnel
+48: Tunnel closed
+62: ERROR failed to receive from connection tunnel
+62: Tunnel closed
+71: ERROR failed to receive from connection tunnel
+71: Tunnel closed
+64: ERROR failed to receive from connection tunnel
+64: Tunnel closed
+70: ERROR failed to receive from connection tunnel
+70: Tunnel closed
+69: ERROR failed to receive from connection tunnel
+69: Tunnel closed
+74: ERROR failed to receive from connection tunnel
+74: Tunnel closed
+72: ERROR failed to receive from connection tunnel
+72: Tunnel closed
+75: ERROR failed to receive from connection tunnel
+75: Tunnel closed
+60: ERROR failed to receive from connection tunnel
+60: Tunnel closed
+91: ERROR failed to receive from connection tunnel
+91: Tunnel closed
+111: ERROR failed to receive from connection tunnel
+111: Tunnel closed
+63: ERROR failed to receive from connection tunnel
+63: Tunnel closed
+96: ERROR failed to receive from connection tunnel
+96: Tunnel closed
+87: ERROR failed to receive from connection tunnel
+87: Tunnel closed
+90: ERROR failed to receive from connection tunnel
+90: Tunnel closed
+110: ERROR failed to receive from connection tunnel
+110: Tunnel closed
+94: ERROR failed to receive from connection tunnel
+94: Tunnel closed
+97: ERROR failed to receive from connection tunnel
+97: Tunnel closed
+85: ERROR failed to receive from connection tunnel
+85: Tunnel closed
+8: ERROR failed to receive from connection tunnel
+8: Tunnel closed
+99: ERROR failed to receive from connection tunnel
+99: Tunnel closed
+77: ERROR failed to receive from connection tunnel
+77: Tunnel closed
+41: ERROR failed to receive from connection tunnel
+41: Tunnel closed
+89: ERROR failed to receive from connection tunnel
+89: Tunnel closed
