@@ -110,13 +110,19 @@ void handle_request(int connection_fd,
   }
 
   time_t now = time(NULL);
-  output_log({std::to_string(request_id),
-              ": \"",
-              client_request.start_line,
-              "\" from ",
-              clientID,
-              " @ ",
-              asctime(gmtime(&now))});
+  std::vector<std::string> record{std::to_string(request_id),
+                                  ": \"",
+                                  client_request.start_line,
+                                  "\" from ",
+                                  clientID,
+                                  " @ ",
+                                  asctime(gmtime(&now))};
+
+  mtx.lock();
+  for (auto t : record) {
+    write_log << t;
+  }
+  mtx.unlock();
   // Seperate function calls according to method
   if (client_request.method == "CONNECT") {
     output_log({std::to_string(request_id),
@@ -377,6 +383,11 @@ void handle_post_request(int client_fd,
     output_log({std::to_string(request_id), ": WARNING can't receive http body"});
     return;
   }
+  output_log({std::to_string(request_id),
+              ": Received \"",
+              server_response.start_line,
+              "\" from ",
+              request.hostname});
 
   if ((nbytes = send_buffer(client_fd,
                             server_response.response.c_str(),
@@ -384,6 +395,7 @@ void handle_post_request(int client_fd,
                             0)) == -1) {
     return;
   }
+  output_log({std::to_string(request_id), ": Responding \"", server_response.start_line,"\""});
   return;
 }
 
@@ -429,8 +441,8 @@ void handle_connect_request(int client_fd,
         char buf[CONNECTION_TUNNEL_BUFFER_SIZE];
         if ((nbytes = recv(pfds_recv[i].fd, buf, sizeof(buf), 0)) <= 0) {
           //std::cerr << "Error: failed to receive from connection tunnel" << std::endl;
-          output_log({std::to_string(request_id),
-                      ": ERROR failed to receive from connection tunnel"});
+          //output_log({std::to_string(request_id),
+          //            ": ERROR failed to receive from connection tunnel"});
           delete[] pfds_recv;
           delete[] pfds_send;
           return;
@@ -567,8 +579,12 @@ void handle_get_response(int client_fd,
               "\" from ",
               request.hostname});
 
-  // Cache control: No-Store
-  if (server_response.header["CACHE-CONTROL"].find("no-store") == std::string::npos) {
+  // Chuncked no cache
+  if(server_response.content_length == -1){
+    output_log({std::to_string(request_id), ": not cacheable because it is chunked"});
+  }
+  //Cache control: No-Store
+  else if (server_response.header["CACHE-CONTROL"].find("no-store") == std::string::npos) {
     LRU_cache.cache_saved_order.push_back(request.url);
     LRU_cache.cache_data[request.url] = server_response;
 
@@ -657,8 +673,10 @@ void handle_revalidate_response(int client_fd,
     //std::cout << "200\n";
   }
   else {
+    // output_log({std::to_string(request_id),
+    //             ": Responding \"HTTP/1.1 500 Internal Server Error\""});
     output_log({std::to_string(request_id),
-                ": Responding \"HTTP/1.1 500 Internal Server Error\""});
+                 ": Responding \"", server_response.start_line, "\""});
     send_buffer(
         client_fd, server_response.response.c_str(), server_response.response.size(), 0);
     //std::cout << "500\n";
